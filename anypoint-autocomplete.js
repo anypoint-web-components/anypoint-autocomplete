@@ -384,9 +384,7 @@ export class AnypointAutocomplete extends LitElement {
     const box = this._listbox;
     this._ensureNodeId(box);
     box.style.backgroundColor = 'var(--anypoiont-autocomplete-background-color, #fff)';
-    box.style.boxShadow = `0 4px 5px 0 rgba(0, 0, 0, 0.14),
-                0 1px 10px 0 rgba(0, 0, 0, 0.12),
-                0 2px 4px -1px rgba(0, 0, 0, 0.4)`;
+    box.style.boxShadow = 'var(--anypoiont-autocomplete-dropdown-shaddow)';
     const id = box.id;
     this.setAttribute('aria-owns', id);
     this.setAttribute('aria-controls', id);
