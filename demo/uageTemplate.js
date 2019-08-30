@@ -7,7 +7,7 @@ export default html`
     <ul>
       <li><b>Regular</b> - The list is styled for Material Design</li>
       <li>
-        <b>Legacy</b> - To provide compatibility with legacy Anypoint design
+        <b>Compatibility</b> - To provide compatibility with Anypoint design
       </li>
     </ul>
 

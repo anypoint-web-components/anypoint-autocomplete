@@ -41,7 +41,7 @@ export class AnypointAutocomplete extends LitElement {
       scrollAction,
       horizontalOffset,
       verticalOffset,
-      legacy,
+      compatibility,
       noAnimations,
       _suggestions
     } = this;
@@ -71,9 +71,9 @@ export class AnypointAutocomplete extends LitElement {
         useariaselected
         @select="${this._selectionHandler}">
         ${_showLoader ? html`<paper-progress style="width: 100%" indeterminate></paper-progress>` : undefined}
-        ${_suggestions.map((item) => html`<anypoint-item ?legacy="${legacy}">
+        ${_suggestions.map((item) => html`<anypoint-item ?compatibility="${compatibility}">
           <div>${item.value || item}</div>
-          ${legacy ? undefined : html`<paper-ripple .noink="${noink}"></paper-ripple>`}
+          ${compatibility ? undefined : html`<paper-ripple .noink="${noink}"></paper-ripple>`}
         </anypoint-item>`)}
       </anypoint-listbox>
     </anypoint-dropdown>
@@ -176,13 +176,17 @@ export class AnypointAutocomplete extends LitElement {
       noAnimations: { type: Boolean },
       /**
        * Removes ripple effect from list items.
-       * This effect is always disabled when `legacy` is set.
+       * This effect is always disabled when `compatibility` is set.
        */
       noink: { type: Boolean },
       /**
-       * Enables Anypoint legacy style for list items.
+       * Enables compatibility with Anypoint components.
        */
-      legacy: { type: Boolean }
+      compatibility: { type: Boolean, reflect: true },
+      /**
+       * @deprecated Use `compatibility` instead
+       */
+      legacy: { type: Boolean },
     };
   }
 
@@ -277,17 +281,25 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   get legacy() {
-    return this._legacy;
+    return this.compatibility;
   }
 
   set legacy(value) {
-    const old = this._legacy;
+    this.compatibility = value;
+  }
+
+  get compatibility() {
+    return this._compatibility;
+  }
+
+  set compatibility(value) {
+    const old = this._compatibility;
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
-    this._legacy = value;
-    this.requestUpdate('legacy', old);
+    this._compatibility = value;
+    this.requestUpdate('compatibility', old);
   }
 
   get isAttached() {

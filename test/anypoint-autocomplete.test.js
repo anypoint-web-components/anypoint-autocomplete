@@ -1,5 +1,5 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
-import sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import '../anypoint-autocomplete.js';
 
@@ -62,9 +62,9 @@ describe('<anypoint-autocomplete>', function() {
     <anypoint-autocomplete target="f2"></anypoint-autocomplete></div>`);
   }
 
-  async function legacyFixture() {
+  async function compatibilityFixture() {
     return await fixture(html`<div><input id="f2">
-    <anypoint-autocomplete legacy target="f2"></anypoint-autocomplete></div>`);
+    <anypoint-autocomplete compatibility target="f2"></anypoint-autocomplete></div>`);
   }
 
   describe('Initialization', () => {
@@ -262,6 +262,7 @@ describe('<anypoint-autocomplete>', function() {
       notifyInput(input);
       assert.equal(element.suggestions.length, 4);
       await aTimeout();
+      /* eslint-disable require-atomic-updates */
       input.value = 'ap';
       notifyInput(input);
       assert.equal(element.suggestions.length, 2);
@@ -730,12 +731,12 @@ describe('<anypoint-autocomplete>', function() {
     });
   });
 
-  describe('legacy property', () => {
+  describe('compatibility property', () => {
     let element;
     const source = ['Apple', 'Appli', 'Applo'];
 
     beforeEach(async () => {
-      const region = await legacyFixture();
+      const region = await compatibilityFixture();
       element = region.querySelector('anypoint-autocomplete');
       element.source = source;
       element.openOnFocus = true;
@@ -743,9 +744,9 @@ describe('<anypoint-autocomplete>', function() {
       await nextFrame();
     });
 
-    it('sets legacy property on anypoin-item', () => {
+    it('sets compatibility property on anypoin-item', () => {
       const item = element.querySelector('anypoint-item');
-      assert.isTrue(item.legacy);
+      assert.isTrue(item.compatibility);
     });
 
     it('does not render ripple effect', () => {
@@ -870,6 +871,21 @@ describe('<anypoint-autocomplete>', function() {
       const spy = sinon.spy(element._listbox, '_focusPrevious');
       element._onUpKey();
       assert.isTrue(spy.called);
+    });
+  });
+
+  describe('compatibility mode', () => {
+    it('sets compatibility on item when setting legacy', async () => {
+      const element = await basicFixture();
+      element.legacy = true;
+      assert.isTrue(element.legacy, 'legacy is set');
+      assert.isTrue(element.compatibility, 'compatibility is set');
+    });
+
+    it('returns compatibility value from item when getting legacy', async () => {
+      const element = await basicFixture();
+      element.compatibility = true;
+      assert.isTrue(element.legacy, 'legacy is set');
     });
   });
 });

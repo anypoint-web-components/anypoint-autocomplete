@@ -29,7 +29,7 @@ class ComponentDemo extends ArcDemoPage {
     super();
     this.initObservableProperties([
       'demoOutlined',
-      'demoLegacy',
+      'demoCompatibility',
       'demoNoink',
       'demoUseLoader',
       'demoNoAnimation'
@@ -39,7 +39,7 @@ class ComponentDemo extends ArcDemoPage {
     this._demoQuery = this._demoQuery.bind(this);
 
     this._componentName = 'anypoint-autocomplete';
-    this.demoStates = ['Contained', 'Outlined', 'Legacy'];
+    this.demoStates = ['Contained', 'Outlined', 'Anypoint'];
   }
 
   _toggleMainOption(e) {
@@ -52,15 +52,15 @@ class ComponentDemo extends ArcDemoPage {
     switch (state) {
       case 0:
         this.demoOutlined = false;
-        this.demoLegacy = false;
+        this.demoCompatibility = false;
         break;
       case 1:
         this.demoOutlined = true;
-        this.demoLegacy = false;
+        this.demoCompatibility = false;
         break;
       case 2:
         this.demoOutlined = false;
-        this.demoLegacy = true;
+        this.demoCompatibility = true;
         break;
     }
   }
@@ -84,7 +84,7 @@ class ComponentDemo extends ArcDemoPage {
       demoStates,
       darkThemeActive,
       demoOutlined,
-      demoLegacy,
+      demoCompatibility,
       demoNoink,
       demoUseLoader,
       demoNoAnimation
@@ -107,7 +107,7 @@ class ComponentDemo extends ArcDemoPage {
             aria-label="Input field with list suggestions">
             <anypoint-input
               ?outlined="${demoOutlined}"
-              ?legacy="${demoLegacy}"
+              ?compatibility="${demoCompatibility}"
               id="fruitsSuggestions1"
               >
               <label slot="label">Enter fruit name</label>
@@ -118,7 +118,7 @@ class ComponentDemo extends ArcDemoPage {
               openonfocus
               target="fruitsSuggestions1"
               ?outlined="${demoOutlined}"
-              ?legacy="${demoLegacy}"
+              ?compatibility="${demoCompatibility}"
               ?noink="${demoNoink}"
               ?noAnimations="${demoNoAnimation}"
               ?loader="${demoUseLoader}"
