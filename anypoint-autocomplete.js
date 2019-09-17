@@ -187,6 +187,10 @@ export class AnypointAutocomplete extends LitElement {
        * @deprecated Use `compatibility` instead
        */
       legacy: { type: Boolean },
+      /**
+       * When set it won't setup `aria-controls` on target element.
+       */
+      noTargetControls: { type: Boolean }
     };
   }
 
@@ -401,7 +405,7 @@ export class AnypointAutocomplete extends LitElement {
     this.setAttribute('aria-owns', id);
     this.setAttribute('aria-controls', id);
     const target = this._oldTarget;
-    if (!target) {
+    if (!target || this.noTargetControls) {
       return;
     }
     target.setAttribute('aria-controls', id);

@@ -900,6 +900,16 @@ describe('<anypoint-autocomplete>', function() {
       `);
     }
 
+    async function noTargetControlsFixture() {
+      return await fixture(html`
+        <div>
+          <label id="inputLabel">Test</label>
+          <input id="f1" aria-labelledby="inputLabel" />
+          <anypoint-autocomplete target="f1" noTargetControls></anypoint-autocomplete>
+        </div>
+      `);
+    }
+
     it('is accessible', async () => {
       const element = await suggestionsFixture();
       await assert.isAccessible(element);
@@ -909,6 +919,12 @@ describe('<anypoint-autocomplete>', function() {
       const element = await suggestionsFixture();
       const result = element.querySelector('#f1').getAttribute('aria-controls');
       assert.notEmpty(result);
+    });
+
+    it('does not set aria-controls on the target when noTargetControls', async () => {
+      const element = await noTargetControlsFixture();
+      const result = element.querySelector('#f1').getAttribute('aria-controls');
+      assert.equal(result, null);
     });
 
     it('sets aria-controls on the elment', async () => {
