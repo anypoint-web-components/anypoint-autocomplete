@@ -47,11 +47,12 @@ declare class AnypointAutocomplete extends LitElement {
   source: Array<object|null>|Array<String|null>|null;
   readonly opened: Boolean|null;
   _opened: boolean|null|undefined;
+  legacy: boolean|null|undefined;
 
   /**
-   * Enables Anypoint legacy style for list items.
+   * Enables compatibility with Anypoint components.
    */
-  legacy: boolean|null|undefined;
+  compatibility: boolean|null|undefined;
   isAttached: any;
   readonly _listbox: any;
   onquery: Function|null;
@@ -135,9 +136,14 @@ declare class AnypointAutocomplete extends LitElement {
 
   /**
    * Removes ripple effect from list items.
-   * This effect is always disabled when `legacy` is set.
+   * This effect is always disabled when `compatibility` is set.
    */
   noink: boolean|null|undefined;
+
+  /**
+   * When set it won't setup `aria-controls` on target element.
+   */
+  noTargetControls: boolean|null|undefined;
   constructor();
   connectedCallback(): void;
   disconnectedCallback(): void;
