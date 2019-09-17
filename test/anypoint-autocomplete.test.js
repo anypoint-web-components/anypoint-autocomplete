@@ -888,4 +888,90 @@ describe('<anypoint-autocomplete>', function() {
       assert.isTrue(element.legacy, 'legacy is set');
     });
   });
+
+  describe('a11y', () => {
+    async function suggestionsFixture() {
+      return await fixture(html`
+        <div>
+          <label id="inputLabel">Test</label>
+          <input id="f1" aria-labelledby="inputLabel" />
+          <anypoint-autocomplete noanimations target="f1" .source="${suggestions}"></anypoint-autocomplete>
+        </div>
+      `);
+    }
+
+    it('is accessible', async () => {
+      const element = await suggestionsFixture();
+      await assert.isAccessible(element);
+    });
+
+    it('sets aria-controls on the target', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('#f1').getAttribute('aria-controls');
+      assert.notEmpty(result);
+    });
+
+    it('sets aria-controls on the elment', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-controls');
+      assert.notEmpty(result);
+    });
+
+    it('sets aria-controls to the listbox', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-controls');
+      const boxId = element.querySelector('anypoint-listbox').id;
+      assert.equal(result, boxId);
+    });
+
+    it('sets aria-owns to the listbox', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-owns');
+      const boxId = element.querySelector('anypoint-listbox').id;
+      assert.equal(result, boxId);
+    });
+
+    it('sets aria-autocomplete on the target', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('#f1').getAttribute('aria-autocomplete');
+      assert.equal(result, 'list');
+    });
+
+    it('sets aria-haspopup on the target', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('#f1').getAttribute('aria-haspopup');
+      assert.equal(result, 'true');
+    });
+
+    it('sets autocomplete on the target', async () => {
+      const element = await suggestionsFixture();
+      const result = element.querySelector('#f1').getAttribute('autocomplete');
+      assert.equal(result, 'off');
+    });
+
+    it('sets role on parent', async () => {
+      const element = await suggestionsFixture();
+      const result = element.getAttribute('role');
+      assert.equal(result, 'combobox');
+    });
+
+    it('sets aria-expanded on parent', async () => {
+      const element = await suggestionsFixture();
+      const result = element.getAttribute('aria-expanded');
+      assert.equal(result, 'false');
+    });
+
+    it('sets aria-owns on parent', async () => {
+      const element = await suggestionsFixture();
+      const result = element.getAttribute('aria-owns');
+      const boxId = element.querySelector('anypoint-autocomplete').id;
+      assert.equal(result, boxId);
+    });
+
+    it('sets aria-haspopup on parent', async () => {
+      const element = await suggestionsFixture();
+      const result = element.getAttribute('aria-haspopup');
+      assert.equal(result, 'listbox');
+    });
+  });
 });
