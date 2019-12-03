@@ -63,17 +63,18 @@ export class AnypointAutocomplete extends LitElement {
       noautofocus
       nooverlap
       nocancelonoutsideclick
-      @overlay-closed="${this._closeHandler}">
+      @overlay-closed="${this._closeHandler}"
+    >
       <anypoint-listbox
         aria-label="Use arrows and enter to select list item. Escape to close the list."
         slot="dropdown-content"
         selectable="anypoint-item"
         useariaselected
         @select="${this._selectionHandler}">
-        ${_showLoader ? html`<paper-progress style="width: 100%" indeterminate></paper-progress>` : undefined}
+        ${_showLoader ? html`<paper-progress style="width: 100%" indeterminate></paper-progress>` : ''}
         ${_suggestions.map((item) => html`<anypoint-item ?compatibility="${compatibility}">
           <div>${item.value || item}</div>
-          ${compatibility ? undefined : html`<paper-ripple .noink="${noink}"></paper-ripple>`}
+          ${compatibility ? '' : html`<paper-ripple .noink="${noink}"></paper-ripple>`}
         </anypoint-item>`)}
       </anypoint-listbox>
     </anypoint-dropdown>
