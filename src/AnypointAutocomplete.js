@@ -30,57 +30,6 @@ export class AnypointAutocomplete extends LitElement {
     return this;
   }
 
-  render() {
-    const {
-      loader,
-      _loading,
-      _opened,
-      _oldTarget,
-      verticalAlign,
-      horizontalAlign,
-      scrollAction,
-      horizontalOffset,
-      verticalOffset,
-      compatibility,
-      noAnimations,
-      _suggestions
-    } = this;
-    let { noink } = this;
-    if (noink === undefined) {
-      noink = false;
-    }
-    const _showLoader = !!loader && !!_loading;
-    return html`
-    <anypoint-dropdown
-      .positionTarget="${_oldTarget}"
-      .verticalAlign="${verticalAlign}"
-      .verticalOffset="${verticalOffset}"
-      .horizontalAlign="${horizontalAlign}"
-      .horizontalOffset="${horizontalOffset}"
-      .scrollAction="${scrollAction}"
-      .opened="${_opened}"
-      .noAnimations="${noAnimations}"
-      noautofocus
-      nooverlap
-      nocancelonoutsideclick
-      @overlay-closed="${this._closeHandler}"
-    >
-      <anypoint-listbox
-        aria-label="Use arrows and enter to select list item. Escape to close the list."
-        slot="dropdown-content"
-        selectable="anypoint-item"
-        useariaselected
-        @select="${this._selectionHandler}">
-        ${_showLoader ? html`<paper-progress style="width: 100%" indeterminate></paper-progress>` : ''}
-        ${_suggestions.map((item) => html`<anypoint-item ?compatibility="${compatibility}">
-          <div>${item.value || item}</div>
-          ${compatibility ? '' : html`<paper-ripple .noink="${noink}"></paper-ripple>`}
-        </anypoint-item>`)}
-      </anypoint-listbox>
-    </anypoint-dropdown>
-    `;
-  }
-
   static get properties() {
     return {
       /**
@@ -89,7 +38,7 @@ export class AnypointAutocomplete extends LitElement {
        * an id of an element that is a child of the parent element of this node.
        * @type {HTMLElement|String}
        */
-      target: { },
+      target: {},
       /**
        * List of suggestions to display.
        * If the array items are strings they will be used for display a suggestions and
@@ -233,11 +182,13 @@ export class AnypointAutocomplete extends LitElement {
     }
     this.__loading = value;
     this.requestUpdate('_loading', value);
-    this.dispatchEvent(new CustomEvent('loading-chanegd', {
-      detail: {
-        value
-      }
-    }));
+    this.dispatchEvent(
+      new CustomEvent('loading-chanegd', {
+        detail: {
+          value
+        }
+      })
+    );
   }
 
   get source() {
@@ -278,11 +229,13 @@ export class AnypointAutocomplete extends LitElement {
     this.__opened = value;
     this.requestUpdate('_opened', old);
     this._openedChanged(value);
-    this.dispatchEvent(new CustomEvent('opened-changed', {
-      detail: {
-        value
-      }
-    }));
+    this.dispatchEvent(
+      new CustomEvent('opened-changed', {
+        detail: {
+          value
+        }
+      })
+    );
   }
 
   get legacy() {
@@ -488,7 +441,7 @@ export class AnypointAutocomplete extends LitElement {
     if (target.id) {
       return;
     }
-    const id = Math.floor((Math.random() * 100000) + 1);
+    const id = Math.floor(Math.random() * 100000 + 1);
     target.id = `paperAutocompleteInput${id}`;
   }
   /**
@@ -614,8 +567,8 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     filtered.sort(function(a, b) {
-      const valueA = (typeof a === 'string') ? a : String(a.value);
-      const valueB = (typeof b === 'string') ? b : String(b.value);
+      const valueA = typeof a === 'string' ? a : String(a.value);
+      const valueB = typeof b === 'string' ? b : String(b.value);
       const lowerA = valueA.toLowerCase();
       const lowerB = valueB.toLowerCase();
       const aIndex = lowerA.indexOf(query);
@@ -652,8 +605,12 @@ export class AnypointAutocomplete extends LitElement {
       return source;
     }
     const filter = function(item) {
-      const value = (typeof item === 'string') ? item : item.value;
-      return String(value).toLowerCase().indexOf(query) !== -1;
+      const value = typeof item === 'string' ? item : item.value;
+      return (
+        String(value)
+          .toLowerCase()
+          .indexOf(query) !== -1
+      );
     };
     const filtered = query ? source.filter(filter) : source;
     return filtered;
@@ -697,11 +654,13 @@ export class AnypointAutocomplete extends LitElement {
     }
     value = String(value);
     this.target.value = value;
-    this.target.dispatchEvent(new CustomEvent('input', {
-      detail: {
-        autocomplete: this
-      }
-    }));
+    this.target.dispatchEvent(
+      new CustomEvent('input', {
+        detail: {
+          autocomplete: this
+        }
+      })
+    );
     this._opened = false;
     this._inform(suggestionValue);
   }
@@ -807,19 +766,97 @@ export class AnypointAutocomplete extends LitElement {
     }
   }
   /**
-  * Dispatches `selected` event with new value.
-  *
-  * @param {String|Object} value Selected value.
-  */
- _inform(value) {
-   const ev = new CustomEvent('selected', {
-     detail: {
-       value
-     },
-     cancelable: true
-   });
-   this.dispatchEvent(ev);
- }
+   * Dispatches `selected` event with new value.
+   *
+   * @param {String|Object} value Selected value.
+   */
+  _inform(value) {
+    const ev = new CustomEvent('selected', {
+      detail: {
+        value
+      },
+      cancelable: true
+    });
+    this.dispatchEvent(ev);
+  }
+
+  render() {
+    const {
+      _opened,
+      _oldTarget,
+      verticalAlign,
+      horizontalAlign,
+      scrollAction,
+      horizontalOffset,
+      verticalOffset,
+      noAnimations
+    } = this;
+    return html`
+      <anypoint-dropdown
+        .positionTarget="${_oldTarget}"
+        .verticalAlign="${verticalAlign}"
+        .verticalOffset="${verticalOffset}"
+        .horizontalAlign="${horizontalAlign}"
+        .horizontalOffset="${horizontalOffset}"
+        .scrollAction="${scrollAction}"
+        .opened="${_opened}"
+        .noAnimations="${noAnimations}"
+        noautofocus
+        nooverlap
+        nocancelonoutsideclick
+        @overlay-closed="${this._closeHandler}"
+      >
+        ${this._listboxTemplate()}
+      </anypoint-dropdown>
+    `;
+  }
+
+  /**
+   * @return {Object} Returns a template for the listbox
+   */
+  _listboxTemplate() {
+    return html`
+      <anypoint-listbox
+        aria-label="Use arrows and enter to select list item. Escape to close the list."
+        slot="dropdown-content"
+        selectable="anypoint-item"
+        useariaselected
+        @select="${this._selectionHandler}"
+      >
+        ${this._loaderTemplate()}
+        ${this._listTemplate()}
+      </anypoint-listbox>
+    `;
+  }
+
+  /**
+   * @return {Object} Returns a template for the progress bar
+   */
+  _loaderTemplate() {
+    const { loader, _loading } = this;
+    const _showLoader = !!loader && !!_loading;
+    if (!_showLoader) {
+      return '';
+    }
+    return html`<paper-progress style="width: 100%" indeterminate></paper-progress>`;
+  }
+
+  /**
+   * @return {Array<Object>} Returns a template for the list item
+   */
+  _listTemplate() {
+    const { compatibility, _suggestions=[], noink = false } = this;
+    return _suggestions.map(
+      (item) => html`
+        <anypoint-item ?compatibility="${compatibility}">
+          <div>${item.value || item}</div>
+          ${compatibility
+            ? ''
+            : html`<paper-ripple ?noink="${noink}"></paper-ripple>`}
+        </anypoint-item>
+      `
+    )
+  }
 }
 /**
  * Fired when user entered some text into the input.
