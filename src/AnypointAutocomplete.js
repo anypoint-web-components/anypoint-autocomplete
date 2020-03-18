@@ -620,9 +620,6 @@ export class AnypointAutocomplete extends LitElement {
     if (this._opened) {
       this._opened = false;
     }
-    if (!this.__ignoreCloseRefocus) {
-      this._refocusTarget();
-    }
   }
 
   notifyResize() {
@@ -663,6 +660,9 @@ export class AnypointAutocomplete extends LitElement {
     );
     this._opened = false;
     this._inform(suggestionValue);
+    if (!this.__ignoreCloseRefocus) {
+      this._refocusTarget();
+    }
   }
 
   _refocusTarget() {
