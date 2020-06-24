@@ -1,10 +1,16 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
-import * as sinon from 'sinon/pkg/sinon-esm.js';
+import * as sinon from 'sinon';
 import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import '../anypoint-autocomplete.js';
+import { openedValue, autocompleteFocus } from '../src/AnypointAutocomplete.js';
 
+/* eslint-disable no-param-reassign */
 
-describe('<anypoint-autocomplete>', function() {
+/** @typedef {import('../index.js').AnypointAutocomplete} AnypointAutocomplete */
+/** @typedef {import('../src/AnypointAutocomplete').InternalSuggestion} InternalSuggestion */
+/** @typedef {import('../src/AnypointAutocomplete').Suggestion} Suggestion */
+
+describe('<anypoint-autocomplete>', () => {
   const suggestions = ['Apple', 'Apricot', 'Avocado', 'Banana'];
   const objectSuggestions = [
     {
@@ -35,12 +41,18 @@ describe('<anypoint-autocomplete>', function() {
     target.dispatchEvent(e);
   }
 
+  /**
+   * @return {Promise<AnypointAutocomplete>}
+   */
   async function basicFixture() {
-    return await fixture(html`<anypoint-autocomplete></anypoint-autocomplete>`);
+    return fixture(html`<anypoint-autocomplete></anypoint-autocomplete>`);
   }
 
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
   async function suggestionsFixture() {
-    return await fixture(html`
+    return fixture(html`
       <div>
         <input id="f1" />
         <anypoint-autocomplete noanimations target="f1" .source="${suggestions}"></anypoint-autocomplete>
@@ -48,8 +60,24 @@ describe('<anypoint-autocomplete>', function() {
     `);
   }
 
+  /**
+   * @param {Suggestion[]} model
+   * @return {Promise<HTMLDivElement>}
+   */
+  async function modelFixture(model) {
+    return fixture(html`
+      <div>
+        <input id="f1" />
+        <anypoint-autocomplete noanimations target="f1" .source="${model}"></anypoint-autocomplete>
+      </div>
+    `);
+  }
+
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
   async function loaderFixture() {
-    return await fixture(html`
+    return fixture(html`
       <div>
         <input id="f2" />
         <anypoint-autocomplete loader target="f2"></anypoint-autocomplete>
@@ -57,13 +85,19 @@ describe('<anypoint-autocomplete>', function() {
     `);
   }
 
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
   async function stringTargetFixture() {
-    return await fixture(html`<div><input id="f2">
+    return fixture(html`<div><input id="f2">
     <anypoint-autocomplete target="f2"></anypoint-autocomplete></div>`);
   }
 
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
   async function compatibilityFixture() {
-    return await fixture(html`<div><input id="f2">
+    return fixture(html`<div><input id="f2">
     <anypoint-autocomplete compatibility target="f2"></anypoint-autocomplete></div>`);
   }
 
@@ -85,8 +119,8 @@ describe('<anypoint-autocomplete>', function() {
       assert.isFalse(element._loading);
     });
 
-    it('has default _opened', () => {
-      assert.isFalse(element._opened);
+    it('has default opened', () => {
+      assert.isFalse(element.opened);
     });
 
     it('has default openOnFocus', () => {
@@ -114,7 +148,7 @@ describe('<anypoint-autocomplete>', function() {
     });
 
     it('generates an id', () => {
-      assert.notEmpty(element.id);
+      assert.isNotEmpty(element.id);
     });
 
     it('sets position style programatically', () => {
@@ -131,13 +165,13 @@ describe('<anypoint-autocomplete>', function() {
       input = region.querySelector('input');
     });
 
-    it('sets _previousQuery', function() {
+    it('sets _previousQuery', () => {
       input.value = 'test';
       notifyInput(input);
       assert.equal(input.value, element._previousQuery);
     });
 
-    it('dispatches query event', function() {
+    it('dispatches query event', () => {
       const spy = sinon.spy();
       element.addEventListener('query', spy);
       input.value = 'test';
@@ -145,15 +179,78 @@ describe('<anypoint-autocomplete>', function() {
       assert.equal(spy.args[0][0].detail.value, 'test');
     });
 
-    it('filters suggestions', function() {
+    it('filters suggestions', () => {
       const word = 'TEST';
       element.addEventListener('query', function f(e) {
         e.target.removeEventListener('query', f);
-        e.target.source = [word, word + '2', 'etra73hxis'];
+        e.target.source = [word, `${word  }2`, 'etra73hxis'];
       });
       input.value = 'test';
       notifyInput(input);
       assert.lengthOf(element.suggestions, 2);
+    });
+  });
+
+  describe('Suggestions with label', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+    const model = [{
+      value: 'v1',
+      label: 'l1',
+    }, {
+      value: 'v2',
+      label: 'l2',
+    }];
+    beforeEach(async () => {
+      const region = await modelFixture(model);
+      element = region.querySelector('anypoint-autocomplete');
+      input = region.querySelector('input');
+    });
+
+    it('render label instead of value', async () => {
+      input.value = '';
+      notifyInput(input);
+      await nextFrame();
+      const items = element.querySelectorAll('anypoint-item');
+      assert.equal(items[0].textContent.trim(), 'l1');
+      assert.equal(items[1].textContent.trim(), 'l2');
+    });
+
+    it('inserts value into the input', async () => {
+      input.value = '';
+      notifyInput(input);
+      await nextFrame();
+      element._listbox.selectNext();
+      assert.equal(input.value, 'v1');
+    });
+  });
+
+  describe('Suggestions with description', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+    const model = [{
+      value: 'v1',
+      description: 'd1',
+    }, {
+      value: 'v2',
+      description: 'd2',
+    }];
+
+    beforeEach(async () => {
+      const region = await modelFixture(model);
+      element = region.querySelector('anypoint-autocomplete');
+      input = region.querySelector('input');
+    });
+
+    it('render two line item', async () => {
+      input.value = '';
+      notifyInput(input);
+      await nextFrame();
+      const item = element.querySelector('anypoint-item');
+      const body = item.querySelector('anypoint-item-body');
+      assert.isTrue(body.hasAttribute('twoLine'));
+      const desc = body.querySelector('[secondary]')
+      assert.equal(desc.textContent.trim(), 'd1');
     });
   });
 
@@ -242,7 +339,7 @@ describe('<anypoint-autocomplete>', function() {
     });
   });
 
-  describe('Suggestions processing', function() {
+  describe('Suggestions processing', () => {
     let element;
     let input;
     beforeEach(async () => {
@@ -261,7 +358,7 @@ describe('<anypoint-autocomplete>', function() {
       input.value = 'a';
       notifyInput(input);
       assert.equal(element.suggestions.length, 4);
-      await aTimeout();
+      await aTimeout(0);
       /* eslint-disable require-atomic-updates */
       input.value = 'ap';
       notifyInput(input);
@@ -272,7 +369,7 @@ describe('<anypoint-autocomplete>', function() {
       input.value = 'a';
       notifyInput(input);
       assert.equal(element.suggestions.length, 4);
-      await aTimeout();
+      await aTimeout(0);
       input.value = 'pa';
       notifyInput(input);
       assert.equal(element.suggestions.length, 0);
@@ -281,7 +378,7 @@ describe('<anypoint-autocomplete>', function() {
     it('dispatches "selected" event', async () => {
       input.value = 'a';
       notifyInput(input);
-      await aTimeout();
+      await aTimeout(0);
       const spy = sinon.spy();
       element.addEventListener('selected', spy);
       element._listbox.selectNext();
@@ -291,7 +388,7 @@ describe('<anypoint-autocomplete>', function() {
     it('sets value on target when "selected" event not cancelled', async () => {
       input.value = 'a';
       notifyInput(input);
-      await aTimeout();
+      await aTimeout(0);
       element._listbox.selectNext();
       await aTimeout(1);
       assert.equal(input.value, 'Apple');
@@ -300,7 +397,7 @@ describe('<anypoint-autocomplete>', function() {
     it('closes the suggestions', async () => {
       input.value = 'a';
       notifyInput(input);
-      await aTimeout();
+      await aTimeout(0);
       element._listbox.selectNext();
       await aTimeout(1);
       assert.isFalse(element.opened);
@@ -310,7 +407,7 @@ describe('<anypoint-autocomplete>', function() {
       element.source = objectSuggestions;
       input.value = 'apr';
       notifyInput(input);
-      await aTimeout();
+      await aTimeout(10);
       const spy = sinon.spy();
       element.addEventListener('selected', spy);
       element._listbox.selectNext();
@@ -467,7 +564,16 @@ describe('<anypoint-autocomplete>', function() {
       element._previousQuery = 'a';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, ['a', 'aa', 'ab']);
+      assert.deepEqual(element.suggestions, [{
+        value: 'a',
+        index: 0,
+      }, {
+        value: 'aa',
+        index: 1,
+      }, {
+        value: 'ab',
+        index: 3,
+      }]);
     });
 
     it('Filters out string values - cap query', async () => {
@@ -476,7 +582,16 @@ describe('<anypoint-autocomplete>', function() {
       element._previousQuery = 'A';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, ['a', 'aa', 'ab']);
+      assert.deepEqual(element.suggestions, [{
+        value: 'a',
+        index: 0,
+      }, {
+        value: 'aa',
+        index: 1,
+      }, {
+        value: 'ab',
+        index: 3,
+      }]);
     });
 
     it('Filters out string values - cap items', async () => {
@@ -485,7 +600,16 @@ describe('<anypoint-autocomplete>', function() {
       element._previousQuery = 'a';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, ['A', 'Aa', 'Ab']);
+      assert.deepEqual(element.suggestions, [{
+        value: 'A',
+        index: 0,
+      }, {
+        value: 'Aa',
+        index: 1,
+      }, {
+        value: 'Ab',
+        index: 3,
+      }]);
     });
 
     it('Filters out object values', async () => {
@@ -507,7 +631,18 @@ describe('<anypoint-autocomplete>', function() {
       element._previousQuery = 'a';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, [{ value: 'a' }, { value: 'aa' }, { value: 'ab' }]);
+      assert.deepEqual(element.suggestions, [
+        {
+          value: 'a' ,
+          index: 0,
+        }, {
+          value: 'aa',
+          index: 1,
+        }, {
+          value: 'ab',
+          index: 3,
+        }
+      ]);
     });
 
     it('Filters out object values - cap query', async () => {
@@ -516,7 +651,18 @@ describe('<anypoint-autocomplete>', function() {
       element._previousQuery = 'A';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, [{ value: 'a' }, { value: 'aa' }, { value: 'ab' }]);
+      assert.deepEqual(element.suggestions, [
+        {
+          value: 'a' ,
+          index: 0,
+        }, {
+          value: 'aa',
+          index: 1,
+        }, {
+          value: 'ab',
+          index: 3,
+        }
+      ]);
     });
 
     it('Filters out object values - cap items', async () => {
@@ -525,58 +671,73 @@ describe('<anypoint-autocomplete>', function() {
       element._previousQuery = 'a';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, [{ value: 'A' }, { value: 'Aa' }, { value: 'Ab' }]);
+      assert.deepEqual(element.suggestions, [
+        {
+          value: 'A' ,
+          index: 0,
+        }, {
+          value: 'Aa',
+          index: 1,
+        }, {
+          value: 'Ab',
+          index: 3,
+        }
+      ]);
     });
 
-    it('Returns all when no query', async () => {
+    it('returns all when no query', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
-      element.source = [{ value: 'a' }, { value: 'aa' }, { value: 'b' }, { value: 'ab' }];
+      element.source = [{ value: 'a' }, { value: 'aa' }, { value: 'ab' }, { value: 'b' }];
       element._previousQuery = '';
       element._filterSuggestions();
       assert.typeOf(element.suggestions, 'array');
-      assert.deepEqual(element.suggestions, element.source);
+      const mapped = /** @type InternalSuggestion[] */ (element.source.map((item, index) => {
+        const copy = { ...item, index };
+        return copy;
+      }));
+      assert.deepEqual(element.suggestions, mapped);
     });
 
-    it('Closes element when no items after filtered', async () => {
+    it('closes element when no items after filtered', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
       element.source = [{ value: 'a' }, { value: 'aa' }];
       element._previousQuery = 'b';
-      element._opened = true;
+      element[openedValue] = true;
       element._filterSuggestions();
       assert.isFalse(element.opened);
     });
 
-    it('Sorts the results #1', async () => {
+    it('sorts the results #1', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
       element.source = [{ value: 'zoab' }, { value: 'saab' }, { value: 'ab' }, { value: 'Ab' }];
       element._previousQuery = 'ab';
       element._filterSuggestions();
       assert.deepEqual(element.suggestions, [
-        { value: 'ab' },
-        { value: 'Ab' },
-        { value: 'saab' },
-        { value: 'zoab' },
+        { value: 'ab', index: 2 },
+        { value: 'Ab', index: 3 },
+        { value: 'saab', index: 1 },
+        { value: 'zoab', index: 0 },
       ]);
     });
 
-    it('Sorts the results #2', async () => {
+    it('sorts the results #2', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
       element.source = [{ value: 'xab' }, { value: 'xxab' }, { value: 'abxx' }];
       element._previousQuery = 'ab';
       element._filterSuggestions();
       assert.deepEqual(element.suggestions, [
-        { value: 'abxx' },
-        { value: 'xab' },
-        { value: 'xxab' },
+        { value: 'abxx', index: 2 },
+        { value: 'xab', index: 0 },
+        { value: 'xxab', index: 1 },
       ]);
     });
 
-    it('Sorts the results #3', async () => {
+    it('sorts the results #3', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
       element.source = [{ value: 'xxxab' }, { value: 'ab' }];
       element._previousQuery = 'ab';
       element._filterSuggestions();
-      assert.deepEqual(element.suggestions, [{ value: 'ab' }, { value: 'xxxab' }]);
+      assert.deepEqual(element.suggestions, [{ value: 'ab', index: 1 }, { value: 'xxxab', index: 0 }]);
     });
 
     it('Opens the overlay', async () => {
@@ -584,7 +745,7 @@ describe('<anypoint-autocomplete>', function() {
       element.source = [{ value: 'a' }, { value: 'aa' }];
       element._previousQuery = 'a';
       element._filterSuggestions();
-      await aTimeout();
+      await aTimeout(0);
       assert.isTrue(element.opened);
     });
   });
@@ -604,19 +765,19 @@ describe('<anypoint-autocomplete>', function() {
     it('Does nothing when openOnFocus is not set', () => {
       element.openOnFocus = false;
       element._targetFocusHandler();
-      assert.isUndefined(element.__autocompleteFocus);
+      assert.isUndefined(element[autocompleteFocus]);
     });
 
     it('Does nothing when opened', () => {
-      element._opened = true;
+      element[openedValue] = true;
       element._targetFocusHandler();
-      assert.isUndefined(element.__autocompleteFocus);
+      assert.isUndefined(element[autocompleteFocus]);
     });
 
     it('Does nothing when __autocompleteFocus is already set', () => {
-      element.__autocompleteFocus = 1;
+      element[autocompleteFocus] = 1;
       element._targetFocusHandler();
-      assert.equal(element.__autocompleteFocus, 1);
+      assert.equal(element[autocompleteFocus], 1);
     });
 
     it('Does nothing when __ignoreNextFocus is set', () => {
@@ -628,14 +789,14 @@ describe('<anypoint-autocomplete>', function() {
     it('Sets __autocompleteFocus', () => {
       element._valueChanged = () => {};
       element._targetFocusHandler();
-      assert.isTrue(element.__autocompleteFocus);
+      assert.isTrue(element[autocompleteFocus]);
     });
 
     it('Re-sets __autocompleteFocus', async () => {
       element._valueChanged = () => {};
       element._targetFocusHandler();
       await aTimeout(1);
-      assert.isFalse(element.__autocompleteFocus);
+      assert.isFalse(element[autocompleteFocus]);
     });
 
     it('Calls renderSuggestions()', async () => {
@@ -762,10 +923,11 @@ describe('<anypoint-autocomplete>', function() {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
       input = region.querySelector('input');
-      element._previousQuery = input.value = 'a';
+      element._previousQuery = 'a';
+      input.value = 'a';
       element._filterSuggestions();
-      await aTimeout();
-      element._opened = false;
+      await aTimeout(0);
+      element[openedValue] = false;
     });
 
     it('calls _onDownKey() when ArrowDown', () => {
@@ -793,7 +955,8 @@ describe('<anypoint-autocomplete>', function() {
     });
 
     it('calls _onUpKey() when ArrowUp', async () => {
-      element._listbox._focusedItem = element._listbox.items[3];
+      const item = element._listbox.items[3];
+      element._listbox._focusedItem = item;
       const spy = sinon.spy(element, '_onUpKey');
       MockInteractions.keyDownOn(input, 38, [], 'ArrowUp');
       assert.isTrue(spy.called);
@@ -808,10 +971,11 @@ describe('<anypoint-autocomplete>', function() {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
       input = region.querySelector('input');
-      element._previousQuery = input.value = 'a';
+      element._previousQuery = 'a';
+      input.value = 'a';
       element._filterSuggestions();
       await nextFrame();
-      element._opened = false;
+      element[openedValue] = false;
     });
 
     it('calls renderSuggestions() when closed', () => {
@@ -820,17 +984,17 @@ describe('<anypoint-autocomplete>', function() {
       assert.isTrue(spy.called);
     });
 
-    it('eventually focuses on the list when closed', async () => {
-      element._opened = true;
-      const spy = sinon.spy(element._listbox, 'focus');
+    it('eventually highlights an item when closed', async () => {
+      element[openedValue] = true;
+      const spy = sinon.spy(element._listbox, 'highlightNext');
       element._onDownKey();
-      await aTimeout();
+      await aTimeout(0);
       assert.isTrue(spy.called);
     });
 
     it('focuses on the list when opened', () => {
-      element._opened = true;
-      const spy = sinon.spy(element._listbox, 'focus');
+      element[openedValue] = true;
+      const spy = sinon.spy(element._listbox, 'highlightNext');
       element._onDownKey();
       assert.isTrue(spy.called);
     });
@@ -844,31 +1008,33 @@ describe('<anypoint-autocomplete>', function() {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
       input = region.querySelector('input');
-      element._previousQuery = input.value = 'a';
+      element._previousQuery = 'a';
+      input.value = 'a';
       element._filterSuggestions();
       await nextFrame();
-      element._listbox._focusedItem = element._listbox.items[3];
-      element._opened = false;
+      const item = element._listbox.items[3];
+      element._listbox._focusedItem = item;
+      element[openedValue] = false;
     });
 
     it('calls renderSuggestions() when closed', async () => {
       const spy = sinon.spy(element, 'renderSuggestions');
       element._onUpKey();
       assert.isTrue(spy.called);
-      await aTimeout();
+      await aTimeout(0);
     });
 
     it('eventually focuses on the list when closed', async () => {
-      element._opened = true;
-      const spy = sinon.spy(element._listbox, '_focusPrevious');
+      element[openedValue] = true;
+      const spy = sinon.spy(element._listbox, 'highlightPrevious');
       element._onUpKey();
-      await aTimeout();
+      await aTimeout(0);
       assert.isTrue(spy.called);
     });
 
     it('focuses on the list when opened', () => {
-      element._opened = true;
-      const spy = sinon.spy(element._listbox, '_focusPrevious');
+      element[openedValue] = true;
+      const spy = sinon.spy(element._listbox, 'highlightPrevious');
       element._onUpKey();
       assert.isTrue(spy.called);
     });
@@ -890,8 +1056,8 @@ describe('<anypoint-autocomplete>', function() {
   });
 
   describe('a11y', () => {
-    async function suggestionsFixture() {
-      return await fixture(html`
+    async function basicFixtureA11y() {
+      return fixture(html`
         <div>
           <label id="inputLabel">Test</label>
           <input id="f1" aria-labelledby="inputLabel" />
@@ -901,7 +1067,7 @@ describe('<anypoint-autocomplete>', function() {
     }
 
     async function noTargetControlsFixture() {
-      return await fixture(html`
+      return fixture(html`
         <div>
           <label id="inputLabel">Test</label>
           <input id="f1" aria-labelledby="inputLabel" />
@@ -911,14 +1077,14 @@ describe('<anypoint-autocomplete>', function() {
     }
 
     it('is accessible', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       await assert.isAccessible(element);
     });
 
     it('sets aria-controls on the target', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('#f1').getAttribute('aria-controls');
-      assert.notEmpty(result);
+      assert.isNotEmpty(result);
     });
 
     it('does not set aria-controls on the target when noTargetControls', async () => {
@@ -928,64 +1094,64 @@ describe('<anypoint-autocomplete>', function() {
     });
 
     it('sets aria-controls on the elment', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-controls');
-      assert.notEmpty(result);
+      assert.isNotEmpty(result);
     });
 
     it('sets aria-controls to the listbox', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-controls');
       const boxId = element.querySelector('anypoint-listbox').id;
       assert.equal(result, boxId);
     });
 
     it('sets aria-owns to the listbox', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-owns');
       const boxId = element.querySelector('anypoint-listbox').id;
       assert.equal(result, boxId);
     });
 
     it('sets aria-autocomplete on the target', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('#f1').getAttribute('aria-autocomplete');
       assert.equal(result, 'list');
     });
 
     it('sets aria-haspopup on the target', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('#f1').getAttribute('aria-haspopup');
       assert.equal(result, 'true');
     });
 
     it('sets autocomplete on the target', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.querySelector('#f1').getAttribute('autocomplete');
       assert.equal(result, 'off');
     });
 
     it('sets role on parent', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.getAttribute('role');
       assert.equal(result, 'combobox');
     });
 
     it('sets aria-expanded on parent', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.getAttribute('aria-expanded');
       assert.equal(result, 'false');
     });
 
     it('sets aria-owns on parent', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.getAttribute('aria-owns');
       const boxId = element.querySelector('anypoint-autocomplete').id;
       assert.equal(result, boxId);
     });
 
     it('sets aria-haspopup on parent', async () => {
-      const element = await suggestionsFixture();
+      const element = await basicFixtureA11y();
       const result = element.getAttribute('aria-haspopup');
       assert.equal(result, 'listbox');
     });

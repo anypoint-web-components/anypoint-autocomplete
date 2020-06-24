@@ -13,12 +13,42 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import '@anypoint-web-components/anypoint-dropdown/anypoint-dropdown.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';
+import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
 import '@polymer/paper-ripple/paper-ripple.js';
 import '@polymer/paper-progress/paper-progress.js';
+
+/* eslint-disable no-param-reassign */
+/* eslint-disable class-methods-use-this */
+
+/** @typedef {import('./AnypointAutocomplete').Suggestion} Suggestion */
+/** @typedef {import('./AnypointAutocomplete').InternalSuggestion} InternalSuggestion */
+/** @typedef {import('lit-element').TemplateResult} TemplateResult */
+
+/**
+ * Generates an id on passed element.
+ * @param {HTMLElement} target An element to set id on to
+ */
+function ensureNodeId(target) {
+  if (target.id) {
+    return;
+  }
+  const id = Math.floor(Math.random() * 100000 + 1);
+  target.id = `anypointAutocompleteInput${id}`;
+}
+
+export const suggestionsValue = Symbol('suggestionsValue');
+export const processSource = Symbol('processSource');
+export const normalizeSource = Symbol('normalizeSource');
+export const itemTemplate = Symbol('itemTemplate');
+export const rippleTemplate = Symbol('rippleTemplate');
+export const openedValue = Symbol('openedValue');
+export const openedValuePrivate = Symbol('openedValuePrivate');
+export const autocompleteFocus = Symbol('autocompleteFocus');
+
 /**
  * # `<paper-autocomplete>`
  *
@@ -26,6 +56,12 @@ import '@polymer/paper-progress/paper-progress.js';
  * @demo demo/index.html
  */
 export class AnypointAutocomplete extends LitElement {
+  get styles() {
+    return css`.highlight {
+      font-weight: bold;
+    }`;
+  }
+
   createRenderRoot() {
     return this;
   }
@@ -36,19 +72,16 @@ export class AnypointAutocomplete extends LitElement {
        * A target input field to observe.
        * It accepts an element which is the input with `value` property or
        * an id of an element that is a child of the parent element of this node.
-       * @type {HTMLElement|String}
        */
       target: {},
       /**
-       * List of suggestions to display.
-       * If the array items are strings they will be used for display a suggestions and
+       * List of suggestions to render.
+       * If the array items are strings they will be used to render a suggestions and
        * to insert a value.
        * If the list is an object the each object must contain `value` and `display`
        * properties.
        * The `display` property will be used in the suggestions list and the
        * `value` property will be used to insert the value to the referenced text field.
-       *
-       * @type {Array<Object>|Array<String>}
        */
       source: { type: Array },
       /**
@@ -61,7 +94,7 @@ export class AnypointAutocomplete extends LitElement {
       _loading: { type: Boolean },
       /**
        * Set this to true if you use async operation in response for query event.
-       * This will display a loader when querying for more suggestions.
+       * This will render a loader when querying for more suggestions.
        * Do not use it it you do not handle suggestions asynchronously.
        */
       loader: { type: Boolean, reflect: true },
@@ -69,8 +102,6 @@ export class AnypointAutocomplete extends LitElement {
        * If true it will opend suggestions on input field focus.
        */
       openOnFocus: { type: Boolean },
-
-      _opened: { type: Boolean },
       /**
        * The orientation against which to align the element vertically
        * relative to the text input.
@@ -158,13 +189,14 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * @return {Array<String>|Array<Object>} List of suggestion that are rendered.
+   * @return {string[]|InternalSuggestion[]} List of suggestion that are rendered.
    */
   get suggestions() {
     return this._suggestions;
   }
+
   /**
-   * @return {Boolean} True when user query changed and waiting for `source` property update
+   * @return {boolean} True when user query changed and waiting for `source` property update
    */
   get loading() {
     return this._loading;
@@ -202,32 +234,34 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     this._source = value;
-    if (this._opened) {
+    this[suggestionsValue] = this[processSource](value);
+    if (this[openedValue]) {
       this._filterSuggestions();
     }
     if (this._loading) {
       this._loading = false;
     }
   }
+
   /**
-   * @return {Boolean} True if the overlay is currently opened.
+   * @return {boolean} True if the overlay is currently opened.
    */
   get opened() {
-    return this._opened;
+    return this[openedValue];
   }
 
-  get _opened() {
-    return this.__opened;
+  get [openedValue]() {
+    return this[openedValuePrivate] || false;
   }
 
-  set _opened(value) {
-    const old = this.__opened;
+  set [openedValue](value) {
+    const old = this[openedValuePrivate];
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
-    this.__opened = value;
-    this.requestUpdate('_opened', old);
+    this[openedValuePrivate] = value;
+    this.requestUpdate();
     this._openedChanged(value);
     this.dispatchEvent(
       new CustomEvent('opened-changed', {
@@ -282,32 +316,51 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * @return {Function} Previously registered handler for `query` event
+   * @return {EventListener} Previously registered handler for `query` event
    */
   get onquery() {
     return this._onquery;
   }
+
   /**
    * Registers a callback function for `query` event
-   * @param {Function} value A callback to register. Pass `null` or `undefined`
+   * @param {EventListener} value A callback to register. Pass `null` or `undefined`
    * to clear the listener.
    */
   set onquery(value) {
-    this._registerCallback('query', value);
+    if (this._onquery) {
+      this.removeEventListener('query', this._onquery);
+    }
+    if (typeof value !== 'function') {
+      this._onquery = null;
+      return;
+    }
+    this._onquery = value;
+    this.addEventListener('query', value);
   }
+
   /**
-   * @return {Function} Previously registered handler for `selected` event
+   * @return {EventListener} Previously registered handler for `selected` event
    */
   get onselected() {
     return this._onselected;
   }
+
   /**
    * Registers a callback function for `selected` event
-   * @param {Function} value A callback to register. Pass `null` or `undefined`
+   * @param {EventListener} value A callback to register. Pass `null` or `undefined`
    * to clear the listener.
    */
   set onselected(value) {
-    this._registerCallback('selected', value);
+    if (this._onselected) {
+      this.removeEventListener('selected', this._onselected);
+    }
+    if (typeof value !== 'function') {
+      this._onselected = null;
+      return;
+    }
+    this._onselected = value;
+    this.addEventListener('selected', value);
   }
 
   constructor() {
@@ -320,12 +373,15 @@ export class AnypointAutocomplete extends LitElement {
     this._loading = false;
     this.loader = false;
     this.openOnFocus = false;
-    this._opened = false;
+    this[openedValue] = false;
     this.horizontalAlign = 'center';
     this.verticalAlign = 'top';
     this.scrollAction = 'refit';
     this.horizontalOffset = 0;
     this.verticalOffset = 2;
+    this.noTargetControls = false;
+    this.noAnimations = false;
+    this.noink = false;
   }
 
   connectedCallback() {
@@ -333,7 +389,7 @@ export class AnypointAutocomplete extends LitElement {
     if (super.connectedCallback) {
       super.connectedCallback();
     }
-    this._ensureNodeId(this);
+    ensureNodeId(this);
     this.style.position = 'absolute';
     this.isAttached = true;
   }
@@ -352,10 +408,10 @@ export class AnypointAutocomplete extends LitElement {
     // Styles defined in the component's `styles` getter won't be applied
     // to the children.
     const box = this._listbox;
-    this._ensureNodeId(box);
+    ensureNodeId(box);
     box.style.backgroundColor = 'var(--anypoiont-autocomplete-background-color, #fff)';
     box.style.boxShadow = 'var(--anypoiont-autocomplete-dropdown-shaddow)';
-    const id = box.id;
+    const {id} = box;
     this.setAttribute('aria-owns', id);
     this.setAttribute('aria-controls', id);
     const target = this._oldTarget;
@@ -364,32 +420,52 @@ export class AnypointAutocomplete extends LitElement {
     }
     target.setAttribute('aria-controls', id);
   }
+
   /**
-   * Registers an event handler for given type
-   * @param {String} eventType Event type (name)
-   * @param {Function} value The handler to register
+   * Normalizes suggestions into a single struct.
+   * @param {Array<string|Suggestion>|undefined|null} value A list of suggestions to process
+   * @return {InternalSuggestion[]|null} Normalized suggestions
    */
-  _registerCallback(eventType, value) {
-    const key = `_on${eventType}`;
-    if (this[key]) {
-      this.removeEventListener(eventType, this[key]);
+  [processSource](value) {
+    if (!Array.isArray(value)) {
+      return null;
     }
-    if (typeof value !== 'function') {
-      this[key] = null;
-      return;
-    }
-    this[key] = value;
-    this.addEventListener(eventType, value);
+    const result = [];
+    value.forEach((item, index) => {
+      const normalized = this[normalizeSource](item, index);
+      if (normalized) {
+        result.push(normalized);
+      }
+    });
+    return result;
   }
+
+  /**
+   * Normalizes a suggestion
+   * @param {Suggestion|string} value A list of suggestions to process
+   * @param {number} index The index of the suggestion on the source list.
+   * @return {InternalSuggestion|null} Normalized suggestions
+   */
+  [normalizeSource](value, index) {
+    if (typeof value === 'string') {
+      return { value, index };
+    }
+    if (!value.value) {
+      return null;
+    }
+    const item = { ...value, index };
+    return item;
+  }
+
   /**
    * Handler for target property change.
    */
   _targetChanged() {
-    const { target, isAttached } = this;
-    if (this._oldTarget) {
-      this._oldTarget.removeEventListener('input', this._targetInputHandler);
-      this._oldTarget.removeEventListener('focus', this._targetFocusHandler);
-      this._oldTarget.removeEventListener('keydown', this._targetKeydown);
+    const { target, isAttached, _oldTarget } = this;
+    if (_oldTarget) {
+      _oldTarget.removeEventListener('input', this._targetInputHandler);
+      _oldTarget.removeEventListener('focus', this._targetFocusHandler);
+      _oldTarget.removeEventListener('keydown', this._targetKeydown);
       this._oldTarget = null;
     }
     if (!target || !isAttached) {
@@ -404,7 +480,7 @@ export class AnypointAutocomplete extends LitElement {
       const node = parent.querySelector(`#${target}`);
       if (node) {
         this.target = node;
-        return;
+
       }
     } else if (target) {
       target.addEventListener('input', this._targetInputHandler);
@@ -413,10 +489,11 @@ export class AnypointAutocomplete extends LitElement {
       this._setupTargetAria(target);
       this._oldTarget = target;
       if (target === document.activeElement) {
-        this._targetFocus();
+        this._targetFocusHandler();
       }
     }
   }
+
   /**
    * Sets target input width on the listbox before rendering.
    */
@@ -427,29 +504,19 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     const rect = target.getBoundingClientRect();
-    const width = rect.width;
+    const { width } = rect;
     if (!width) {
       return;
     }
     box.style.width = `${width}px`;
   }
-  /**
-   * Generates an id on passed element.
-   * @param {HTMLElement} target An element to set id on to
-   */
-  _ensureNodeId(target) {
-    if (target.id) {
-      return;
-    }
-    const id = Math.floor(Math.random() * 100000 + 1);
-    target.id = `paperAutocompleteInput${id}`;
-  }
+
   /**
    * Setups relavent aria attributes in the target input.
    * @param {HTMLElement} target An element to set attribute on to
    */
   _setupTargetAria(target) {
-    this._ensureNodeId(this);
+    ensureNodeId(this);
     target.setAttribute('aria-autocomplete', 'list');
     target.setAttribute('autocomplete', 'off');
     target.setAttribute('aria-haspopup', 'true');
@@ -466,9 +533,10 @@ export class AnypointAutocomplete extends LitElement {
       parent.setAttribute('aria-label', 'Text input with list suggestions');
     }
   }
+
   /**
    * Sets `aria-expanded` on input's parent element.
-   * @param {Boolean} opened
+   * @param {boolean} opened
    */
   _openedChanged(opened) {
     const target = this._oldTarget;
@@ -478,9 +546,10 @@ export class AnypointAutocomplete extends LitElement {
     }
     parent.setAttribute('aria-expanded', String(opened));
   }
+
   /**
    * Renders suggestions on target's `input` event
-   * @param {Event} e
+   * @param {CustomEvent} e
    */
   _targetInputHandler(e) {
     if (e.detail) {
@@ -489,19 +558,21 @@ export class AnypointAutocomplete extends LitElement {
     }
     this.renderSuggestions();
   }
+
   /**
    * Renders suggestions on target input focus if `openOnFocus` is set.
    */
   _targetFocusHandler() {
-    if (!this.openOnFocus || this.opened || this.__autocompleteFocus || this.__ignoreNextFocus) {
+    if (!this.openOnFocus || this.opened || this[autocompleteFocus] || this.__ignoreNextFocus) {
       return;
     }
-    this.__autocompleteFocus = true;
+    this[autocompleteFocus] = true;
     setTimeout(() => {
-      this.__autocompleteFocus = false;
+      this[autocompleteFocus] = false;
       this.renderSuggestions();
     });
   }
+
   /**
    * Renders suggestions for current input and opens the overlay if
    * there are suggestions to show.
@@ -528,12 +599,13 @@ export class AnypointAutocomplete extends LitElement {
     this._filterSuggestions();
     if (this.loader) {
       this._loading = true;
-      if (!this._opened) {
+      if (!this[openedValue]) {
         this._setComboboxWidth();
-        this._opened = true;
+        this[openedValue] = true;
       }
     }
   }
+
   /**
    * Disaptches query event and returns it.
    * @param {String} value Current input value.
@@ -548,6 +620,7 @@ export class AnypointAutocomplete extends LitElement {
     this.dispatchEvent(e);
     return e;
   }
+
   /**
    * Filter `source` array for current value.
    */
@@ -556,19 +629,19 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     this._suggestions = [];
-    const source = this.source;
-    if (!source) {
+    const source = /** @type InternalSuggestion[] */ (this[suggestionsValue]);
+    if (!source || !source.length) {
       return;
     }
     const query = this._previousQuery ? this._previousQuery.toLowerCase() : '';
     const filtered = this._listSuggestions(source, query);
     if (filtered.length === 0) {
-      this._opened = false;
+      this[openedValue] = false;
       return;
     }
-    filtered.sort(function(a, b) {
-      const valueA = typeof a === 'string' ? a : String(a.value);
-      const valueB = typeof b === 'string' ? b : String(b.value);
+    filtered.sort((a, b) => {
+      const valueA = String(a.value);
+      const valueB = String(b.value);
       const lowerA = valueA.toLowerCase();
       const lowerB = valueB.toLowerCase();
       const aIndex = lowerA.indexOf(query);
@@ -590,41 +663,43 @@ export class AnypointAutocomplete extends LitElement {
       }
       return valueA.localeCompare(valueB);
     });
-    this._suggestions = filtered;
+    this._suggestions = /** @type Suggestion[] */ (filtered);
     this.notifyResize();
     setTimeout(() => {
       if (!this.opened) {
         this._setComboboxWidth();
-        this._opened = true;
+        this[openedValue] = true;
       }
     });
   }
 
+  /**
+   * Filters out suggestions
+   * @param {InternalSuggestion[]} source Source suggestions (normalized)
+   * @param {string} query Filter term
+   * @return {InternalSuggestion[]} Filtered suggestions.
+   */
   _listSuggestions(source, query) {
     if (!query && this.openOnFocus) {
       return source;
     }
-    const filter = function(item) {
-      const value = typeof item === 'string' ? item : item.value;
-      return (
-        String(value)
-          .toLowerCase()
-          .indexOf(query) !== -1
-      );
+    const filter = (item) => {
+      const { value='' } = item;
+      return String(value).toLowerCase().includes(query);
     };
-    const filtered = query ? source.filter(filter) : source;
-    return filtered;
+    return source.filter(filter);
   }
 
   _closeHandler() {
-    if (this._opened) {
-      this._opened = false;
+    if (this[openedValue]) {
+      this[openedValue] = false;
     }
   }
 
   notifyResize() {
     const node = this.querySelector('anypoint-dropdown');
     if (node) {
+      // @ts-ignore
       node.notifyResize();
     }
   }
@@ -636,30 +711,29 @@ export class AnypointAutocomplete extends LitElement {
     }
     this._selectSuggestion(selected);
   }
+
   /**
    * Inserts selected suggestion into the text box and closes the suggestions.
-   * @param {Number} selected Index of suggestion to use.
+   * @param {number} selected Index of suggestion to use.
    */
   _selectSuggestion(selected) {
-    let value = this._suggestions[selected];
+    const value = this._suggestions[selected];
     if (!value) {
       return;
     }
-    const suggestionValue = value;
-    if (typeof value !== 'string' && typeof value.value !== 'undefined') {
-      value = value.value;
-    }
-    value = String(value);
-    this.target.value = value;
-    this.target.dispatchEvent(
+    const { target } = this;
+    const sourceSuggestion = this.source[value.index];
+    const result = String(value.value);
+    target.value = result;
+    target.dispatchEvent(
       new CustomEvent('input', {
         detail: {
           autocomplete: this
         }
       })
     );
-    this._opened = false;
-    this._inform(suggestionValue);
+    this[openedValue] = false;
+    this._inform(sourceSuggestion);
     if (!this.__ignoreCloseRefocus) {
       this._refocusTarget();
     }
@@ -687,7 +761,7 @@ export class AnypointAutocomplete extends LitElement {
       this._onUpKey();
       e.preventDefault();
       e.stopPropagation();
-    } else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' || e.key === 'NumEnter') {
       this._onEnterKey();
     } else if (e.key === 'Tab') {
       this._onTabDown();
@@ -695,56 +769,67 @@ export class AnypointAutocomplete extends LitElement {
       this._onEscKey();
     }
   }
+
   /**
    * If the dropdown is opened then it focuses on the first element on the list.
    * If closed it opens the suggestions and focuses on the first element on
    * the list.
    */
   _onDownKey() {
-    if (!this._opened) {
+    if (!this[openedValue]) {
       this.renderSuggestions();
       setTimeout(() => {
-        if (this._opened) {
-          this._listbox.focus();
-        }
+        this._listbox.highlightNext();
       });
     } else {
-      this._listbox.focus();
+      this._listbox.highlightNext();
     }
   }
+
   /**
    * If the dropdown is opened then it focuses on the last element on the list.
    * If closed it opens the suggestions and focuses on the last element on
    * the list.
    */
   _onUpKey() {
-    if (!this._opened) {
+    if (!this[openedValue]) {
       this.renderSuggestions();
       setTimeout(() => {
-        if (this._opened) {
-          this._listbox._focusPrevious();
+        if (this[openedValue]) {
+          this._listbox.highlightPrevious();
         }
       });
     } else {
-      this._listbox.focus();
-      this._listbox._focusPrevious();
+      this._listbox.highlightPrevious();
     }
   }
+
   /**
    * Closes the dropdown.
    */
   _onEscKey() {
-    this._opened = false;
+    this[openedValue] = false;
   }
+
   /**
    * Accetps first suggestion from the dropdown when opened.
    */
   _onEnterKey() {
-    if (!this._opened) {
+    if (!this[openedValue]) {
       return;
+    }
+    const { _listbox: node } = this;
+    const { highlightedItem } = node;
+    if (highlightedItem) {
+      const index = Number(node.indexOf(highlightedItem));
+      if (!Number.isNaN(index) && index > -1) {
+        this._selectSuggestion(index);
+        return;
+      }
     }
     this._selectSuggestion(0);
   }
+
   /**
    * The element refocuses on the input when suggestions closes.
    * Also, the lisbox element is focusable so with tab it can be next target.
@@ -753,11 +838,11 @@ export class AnypointAutocomplete extends LitElement {
    * This function sets flags in debouncer to prohibit this.
    */
   _onTabDown() {
-    if (this._opened) {
+    if (this[openedValue]) {
       this._listbox.tabIndex = -1;
       this.__ignoreNextFocus = true;
       this.__ignoreCloseRefocus = true;
-      this._opened = false;
+      this[openedValue] = false;
       setTimeout(() => {
         this._listbox.tabIndex = 0;
         this.__ignoreNextFocus = false;
@@ -765,10 +850,11 @@ export class AnypointAutocomplete extends LitElement {
       }, 300);
     }
   }
+
   /**
    * Dispatches `selected` event with new value.
    *
-   * @param {String|Object} value Selected value.
+   * @param {string|Suggestion} value Selected value.
    */
   _inform(value) {
     const ev = new CustomEvent('selected', {
@@ -782,46 +868,51 @@ export class AnypointAutocomplete extends LitElement {
 
   render() {
     const {
-      _opened,
       _oldTarget,
       verticalAlign,
       horizontalAlign,
       scrollAction,
       horizontalOffset,
       verticalOffset,
-      noAnimations
+      noAnimations,
+      styles,
+      compatibility,
     } = this;
+    const offset = compatibility ? -2 : 0;
+    const finalVerticalOffset = verticalOffset  + offset;
     return html`
-      <anypoint-dropdown
-        .positionTarget="${_oldTarget}"
-        .verticalAlign="${verticalAlign}"
-        .verticalOffset="${verticalOffset}"
-        .horizontalAlign="${horizontalAlign}"
-        .horizontalOffset="${horizontalOffset}"
-        .scrollAction="${scrollAction}"
-        .opened="${_opened}"
-        .noAnimations="${noAnimations}"
-        noautofocus
-        nooverlap
-        nocancelonoutsideclick
-        @overlay-closed="${this._closeHandler}"
-      >
-        ${this._listboxTemplate()}
-      </anypoint-dropdown>
+    <style>${styles}</style>
+    <anypoint-dropdown
+      .positionTarget="${_oldTarget}"
+      .verticalAlign="${verticalAlign}"
+      .verticalOffset="${finalVerticalOffset}"
+      .horizontalAlign="${horizontalAlign}"
+      .horizontalOffset="${horizontalOffset}"
+      .scrollAction="${scrollAction}"
+      .opened="${this[openedValue]}"
+      .noAnimations="${noAnimations}"
+      noautofocus
+      nooverlap
+      nocancelonoutsideclick
+      @overlay-closed="${this._closeHandler}"
+    >
+      ${this._listboxTemplate()}
+    </anypoint-dropdown>
     `;
   }
 
   /**
-   * @return {Object} Returns a template for the listbox
+   * @return {TemplateResult} Returns a template for the listbox
    */
   _listboxTemplate() {
     return html`
       <anypoint-listbox
         aria-label="Use arrows and enter to select list item. Escape to close the list."
         slot="dropdown-content"
-        selectable="anypoint-item"
+        selectable="anypoint-item,anypoint-item-body"
         useariaselected
         @select="${this._selectionHandler}"
+        ?compatibility="${this.compatibility}"
       >
         ${this._loaderTemplate()}
         ${this._listTemplate()}
@@ -830,7 +921,7 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * @return {Object} Returns a template for the progress bar
+   * @return {TemplateResult|string} Returns a template for the progress bar
    */
   _loaderTemplate() {
     const { loader, _loading } = this;
@@ -842,20 +933,40 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * @return {Array<Object>} Returns a template for the list item
+   * @return {TemplateResult[]} Returns a template for the list item
    */
   _listTemplate() {
-    const { compatibility, _suggestions=[], noink = false } = this;
-    return _suggestions.map(
-      (item) => html`
-        <anypoint-item ?compatibility="${compatibility}">
-          <div>${item.value || item}</div>
-          ${compatibility
-            ? ''
-            : html`<paper-ripple ?noink="${noink}"></paper-ripple>`}
-        </anypoint-item>
-      `
-    )
+    const { _suggestions=[] } = this;
+    return _suggestions.map((item) => this[itemTemplate](item));
+  }
+
+  /**
+   * @param {Suggestion} item A suggestion to render
+   * @return {TemplateResult} Template for a single drop down item
+   */
+  [itemTemplate](item) {
+    const label = String(item.label || item.value);
+    const { description } = item;
+    const { compatibility, noink } = this;
+    if (description) {
+      return html`<anypoint-item ?compatibility="${compatibility}">
+      <anypoint-item-body ?compatibility="${compatibility}" twoline>
+        <div>${label}</div>
+        <div secondary>${description}</div>
+        ${this[rippleTemplate](compatibility, noink)}
+      </anypoint-item-body></anypoint-item>`;
+    }
+    return html`<anypoint-item ?compatibility="${compatibility}">
+      <div>${label}</div>
+      ${this[rippleTemplate](compatibility, noink)}
+    </anypoint-item>`;
+  }
+
+  [rippleTemplate](compatibility, noink) {
+    if (compatibility) {
+      return '';
+    }
+    return html`<paper-ripple ?noink="${noink}"></paper-ripple>`;
   }
 }
 /**

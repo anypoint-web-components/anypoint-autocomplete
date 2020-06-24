@@ -7,6 +7,8 @@ import '@anypoint-web-components/anypoint-checkbox/anypoint-checkbox.js';
 import 'chance/chance.js';
 import '../anypoint-autocomplete.js';
 
+/* eslint-disable no-plusplus */
+
 import usageTemplate from './uageTemplate.js';
 import usabilityTemplate from './usabilityTemplate.js';
 import introTemplate from './introTemplate.js';
@@ -22,6 +24,24 @@ const suggestions = ['Apple', 'Apricot', 'Avocado',
   'Mulberry', 'Nectarine', 'Olive', 'Orange'
 ];
 
+const fullSuggestions = [
+  {
+    value: 'apple',
+    label: 'Apple',
+    description: 'Select apple to be healthy',
+  },
+  {
+    value: 'banana',
+    label: 'Banana',
+    description: 'Select banana for fun!',
+  },
+  {
+    value: 'blueberry',
+    label: 'Blueberry',
+    description: 'Select blueberry to kill the hunger',
+  },
+];
+
 /* global chance */
 
 class ComponentDemo extends ArcDemoPage {
@@ -32,7 +52,8 @@ class ComponentDemo extends ArcDemoPage {
       'demoCompatibility',
       'demoNoink',
       'demoUseLoader',
-      'demoNoAnimation'
+      'demoNoAnimation',
+      'complexSuggestions'
     ]);
     this._mainDemoStateHandler = this._mainDemoStateHandler.bind(this);
     this._toggleMainOption = this._toggleMainOption.bind(this);
@@ -40,6 +61,11 @@ class ComponentDemo extends ArcDemoPage {
 
     this._componentName = 'anypoint-autocomplete';
     this.demoStates = ['Contained', 'Outlined', 'Anypoint'];
+    this.demoUseLoader = false;
+    this.darkThemeActive = false;
+    this.demoNoink = false;
+    this.demoNoAnimation = false;
+    this.complexSuggestions = false;
   }
 
   _toggleMainOption(e) {
@@ -49,20 +75,8 @@ class ComponentDemo extends ArcDemoPage {
 
   _mainDemoStateHandler(e) {
     const state = e.detail.value;
-    switch (state) {
-      case 0:
-        this.demoOutlined = false;
-        this.demoCompatibility = false;
-        break;
-      case 1:
-        this.demoOutlined = true;
-        this.demoCompatibility = false;
-        break;
-      case 2:
-        this.demoOutlined = false;
-        this.demoCompatibility = true;
-        break;
-    }
+    this.demoOutlined = state === 1;
+    this.demoCompatibility = state === 2;
   }
 
   _demoQuery(e) {
@@ -71,11 +85,12 @@ class ComponentDemo extends ArcDemoPage {
     }
     const { value } = e.detail;
     setTimeout(() => {
-      const suggestions = [];
+      const items = [];
       for (let i = 0; i < 25; i++) {
-        suggestions.push(value + '' + chance.word());
+        // @ts-ignore
+        items.push(`${value} ${chance.word()}`);
       }
-      e.target.source = suggestions;
+      e.target.source = items;
     }, 700);
   }
 
@@ -87,8 +102,11 @@ class ComponentDemo extends ArcDemoPage {
       demoCompatibility,
       demoNoink,
       demoUseLoader,
-      demoNoAnimation
+      demoNoAnimation,
+      complexSuggestions,
     } = this;
+
+    const items = complexSuggestions ? fullSuggestions : suggestions;
     return html`
       <section class="documentation-section">
         <h3>Interactive demo</h3>
@@ -122,7 +140,7 @@ class ComponentDemo extends ArcDemoPage {
               ?noink="${demoNoink}"
               ?noAnimations="${demoNoAnimation}"
               ?loader="${demoUseLoader}"
-              .source="${suggestions}"
+              .source="${items}"
               @query="${this._demoQuery}">
             </anypoint-autocomplete>
           </div>
@@ -146,6 +164,12 @@ class ComponentDemo extends ArcDemoPage {
             name="demoUseLoader"
             @change="${this._toggleMainOption}"
             >Async suggestions</anypoint-checkbox>
+          <anypoint-checkbox
+            aria-describedby="mainOptionsLabel"
+            slot="options"
+            name="complexSuggestions"
+            @change="${this._toggleMainOption}"
+            >Use complex suggestions</anypoint-checkbox>
         </arc-interactive-demo>
       </section>
     `;
