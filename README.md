@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/anypoint-web-components/anypoint-autocomplete.svg?branch=master)](https://travis-ci.org/anypoint-web-components/anypoint-autocomplete)
+[![Build Status](https://travis-ci.com/anypoint-web-components/anypoint-autocomplete.svg)](https://travis-ci.com/anypoint-web-components/anypoint-autocomplete)
 
 [![Published on NPM](https://img.shields.io/npm/v/@anypoint-web-components/anypoint-autocomplete.svg)](https://www.npmjs.com/package/@anypoint-web-components/anypoint-autocomplete)
 
@@ -8,7 +8,7 @@ This component is based on Material Design lists.
 
 Anypoint web components are set of components that allows to build Anypoint enabled UI in open source projects.
 
-The element renders accessible list of suggestions for input field.
+The element renders accessible list of suggestions for an input field.
 
 ## Usage
 
@@ -98,6 +98,16 @@ class SimpleElement extends ControlStateMixin(ButtonStateMixin(LitElement)) {
 window.customElements.define('simple-element', SimpleElement);
 ```
 
+### Suggestions model
+
+```json
+{
+  "value": "Required, string. The value to insert into the input field",
+  "label": "Optional, string. When set this will be used as the drop down list label",
+  "description": "Optional, string. When set it renders a second line for the suggestion with help message. Keep it short!"
+}
+```
+
 ## Accessibility
 
 The autocomplete element follows W3C guidelines for [ARIA 1.1 Combobox with Listbox Popup](https://www.w3.org/TR/wai-aria-practices/examples/combobox/aria1.1pattern/listbox-combo.html). The element is enabled to support screen readers.
@@ -149,7 +159,7 @@ Because autocomplete element and text input requires a parent element with speci
 
 You can set `aria-label` on the parent to override default message. However other attributes are always changed to comply with accessibility requirements.
 
-### Development
+## Development
 
 ```sh
 git clone https://github.com/anypoint-web-components/anypoint-autocomplete
