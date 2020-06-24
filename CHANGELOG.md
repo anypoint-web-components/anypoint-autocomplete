@@ -50,3 +50,42 @@
 * updated Travis configuration to connect to Sauce Labs [e006cdd](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/e006cddf502bd50ee8c375613cf32034bdc198b8) by Pawel
 
 
+<a name="0.2.0"></a>
+## [0.2.0](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.1.4...0.2.0) (2020-06-24)
+
+### Build
+
+* bumping minor version [36de637](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/36de63711c0915b11fa23238ca371b6e339ba691) by Pawel
+* bumping version [10e8108](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/10e81088c4576642557c800a604bd5ddd455efdb) by Pawel
+
+
+### Continuous integration
+
+* updating Travis configuration [21cd936](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/21cd936a23d9ca7d24a6b6e2450611189377931f) by Pawel
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [7f7ab2d](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/7f7ab2d9633f507119c7e6f25377414f9ffe2512) by Ci agent
+* moving re-focus function call to when selection is made [6039808](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/60398082b6375e4a31332a59e1d9dde0a8307607) by Pawel
+* split a template into several functions [4a7b274](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/4a7b274b26bcb1268c203f8b3a33b66c126489b9) by Pawel
+* moving sources to src folder [28dbb41](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/28dbb41b6711eb7eaef43aedcccfe03eda506dd9) by Pawel
+* upgrading dependencies [94235cd](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/94235cdd0a466812b339fdd19a57d89f0d6e2189) by Pawel
+* removing git add from lint staged config [d97e31e](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/d97e31eb9ca97fe631a1a4b7c5b7d981bc21d8e6) by Pawel
+
+
+### Documentation
+
+* updating readme file [482511a](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/482511a37f79010c5298de05e45d0ce547a6fbbb) by Pawel
+
+
+### Refactor
+
+* adding back support for label and description [72e0299](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/72e02998d71a522e21bbef091945a4903182b724) by Pawel
+
+
+### Testing
+
+* removing legacy tests [f80cf17](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/f80cf175e3e760c727b4ba8d1f815985552c4763) by Pawel
+
+
