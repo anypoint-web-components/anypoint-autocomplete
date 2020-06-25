@@ -17,6 +17,7 @@ The element renders accessible list of suggestions for an input field.
 npm install --save @anypoint-web-components/anypoint-autocomplete
 ```
 
+
 ### In a HTML document
 
 ```html
