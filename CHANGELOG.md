@@ -89,3 +89,32 @@
 * removing legacy tests [f80cf17](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/f80cf175e3e760c727b4ba8d1f815985552c4763) by Pawel
 
 
+<a name="0.2.1"></a>
+## [0.2.1](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.1.5...0.2.1) (2020-06-30)
+
+### Build
+
+* bumping minor version [36de637](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/36de63711c0915b11fa23238ca371b6e339ba691) by Pawel
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [e0cb665](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/e0cb665784e3ab44282eede617272bb85589c0c9) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [7f7ab2d](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/7f7ab2d9633f507119c7e6f25377414f9ffe2512) by Ci agent
+
+
+### Documentation
+
+* updating readme file [482511a](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/482511a37f79010c5298de05e45d0ce547a6fbbb) by Pawel
+
+
+### Bug Fixes
+
+* fixing opened state when no suggestions [87edb42](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/87edb420e5d92208e1aa6481b3a117c0be379f6d) by Pawel
+
+
+### Refactor
+
+* adding back support for label and description [72e0299](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/72e02998d71a522e21bbef091945a4903182b724) by Pawel
+
+
