@@ -340,7 +340,7 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('Suggestions processing', () => {
-    let element;
+    let element = /** @type AnypointAutocomplete */ (null);
     let input;
     beforeEach(async () => {
       const region = await suggestionsFixture();
@@ -400,6 +400,14 @@ describe('<anypoint-autocomplete>', () => {
       await aTimeout(0);
       element._listbox.selectNext();
       await aTimeout(1);
+      assert.isFalse(element.opened);
+    });
+
+    it('sets suggestions closed when no suggestions', async () => {
+      element.source = [];
+      input.value = 'a';
+      notifyInput(input);
+      await aTimeout(0);
       assert.isFalse(element.opened);
     });
 

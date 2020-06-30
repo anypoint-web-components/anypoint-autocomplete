@@ -631,6 +631,7 @@ export class AnypointAutocomplete extends LitElement {
     this._suggestions = [];
     const source = /** @type InternalSuggestion[] */ (this[suggestionsValue]);
     if (!source || !source.length) {
+      this[openedValue] = false;
       return;
     }
     const query = this._previousQuery ? this._previousQuery.toLowerCase() : '';
