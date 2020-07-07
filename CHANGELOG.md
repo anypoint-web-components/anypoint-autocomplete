@@ -118,3 +118,18 @@
 * adding back support for label and description [72e0299](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/72e02998d71a522e21bbef091945a4903182b724) by Pawel
 
 
+<a name="0.2.2"></a>
+## [0.2.2](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.2.0...0.2.2) (2020-07-07)
+
+### Update
+
+* updating dependencies [6efe40f](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/6efe40fc88f50912a1df4b5d852c0ade5ad570c0) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [2130b60](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/2130b600b6231c75ed2fa5b0489997c744a92a09) by Ci agent
+* [ci skip] automated merge master->stage. syncing main branches [e0cb665](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/e0cb665784e3ab44282eede617272bb85589c0c9) by Ci agent
+
+
+### Bug Fixes
+
+* fixing opened state when no suggestions [87edb42](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/87edb420e5d92208e1aa6481b3a117c0be379f6d) by Pawel
+
+
