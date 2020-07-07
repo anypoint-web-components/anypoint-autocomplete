@@ -453,8 +453,7 @@ export class AnypointAutocomplete extends LitElement {
     if (!value.value) {
       return null;
     }
-    const item = { ...value, index };
-    return item;
+    return { ...value, index };
   }
 
   /**
@@ -718,12 +717,19 @@ export class AnypointAutocomplete extends LitElement {
    * @param {number} selected Index of suggestion to use.
    */
   _selectSuggestion(selected) {
+    // pick from the currently rendered suggestions, selected refers to this list
     const value = this._suggestions[selected];
     if (!value) {
       return;
     }
     const { target } = this;
+    // The suggestion on the `_suggestions` is a subset of `[suggestionsValue]`
+    // that has the `index` property, which refers to the index position on the source list.
     const sourceSuggestion = this.source[value.index];
+    if (!sourceSuggestion) {
+      // the source must have changed.
+      return;
+    }
     const result = String(value.value);
     target.value = result;
     target.dispatchEvent(
