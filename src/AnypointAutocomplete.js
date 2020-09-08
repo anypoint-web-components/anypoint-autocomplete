@@ -44,6 +44,7 @@ export const suggestionsValue = Symbol('suggestionsValue');
 export const processSource = Symbol('processSource');
 export const normalizeSource = Symbol('normalizeSource');
 export const itemTemplate = Symbol('itemTemplate');
+export const readLabelValue = Symbol('readLabelValue');
 export const rippleTemplate = Symbol('rippleTemplate');
 export const openedValue = Symbol('openedValue');
 export const openedValuePrivate = Symbol('openedValuePrivate');
@@ -949,19 +950,32 @@ export class AnypointAutocomplete extends LitElement {
 
   /**
    * @param {Suggestion} item A suggestion to render
+   * @return {TemplateResult|string} Value for the label part of the suggestion
+   */
+  [readLabelValue](item) {
+    if (item.label && item.label.constructor && item.label.constructor.name === 'TemplateResult') {
+      return item.label;
+    }
+    return String(item.label || item.value);
+  }
+
+  /**
+   * @param {Suggestion} item A suggestion to render
    * @return {TemplateResult} Template for a single drop down item
    */
   [itemTemplate](item) {
-    const label = String(item.label || item.value);
+    const label = this[readLabelValue](item);
     const { description } = item;
     const { compatibility, noink } = this;
     if (description) {
-      return html`<anypoint-item ?compatibility="${compatibility}">
-      <anypoint-item-body ?compatibility="${compatibility}" twoline>
-        <div>${label}</div>
-        <div secondary>${description}</div>
-        ${this[rippleTemplate](compatibility, noink)}
-      </anypoint-item-body></anypoint-item>`;
+      return html`
+      <anypoint-item ?compatibility="${compatibility}">
+        <anypoint-item-body ?compatibility="${compatibility}" twoline>
+          <div>${label}</div>
+          <div secondary>${description}</div>
+          ${this[rippleTemplate](compatibility, noink)}
+        </anypoint-item-body>
+      </anypoint-item>`;
     }
     return html`<anypoint-item ?compatibility="${compatibility}">
       <div>${label}</div>

@@ -24,12 +24,12 @@ export declare interface Suggestion {
   /**
    * When set this will be used as the drop down list label
    */
-  label?: string;
+  label?: string | TemplateResult;
   /**
    * When set it renders a second line for the suggestion with help message.
    * Keep it short!
    */
-  description?: string;
+  description?: string | TemplateResult;
 }
 
 declare interface InternalSuggestion extends Suggestion {
@@ -39,14 +39,15 @@ declare interface InternalSuggestion extends Suggestion {
   index: number;
 }
 
-export declare const suggestionsValue: symbol;
-export declare const processSource: symbol;
-export declare const normalizeSource: symbol;
-export declare const itemTemplate: symbol;
-export declare const rippleTemplate: symbol;
-export declare const openedValue: symbol;
-export declare const openedValuePrivate: symbol;
-export declare const autocompleteFocus: symbol;
+export declare const suggestionsValue: unique symbol;
+export declare const processSource: unique symbol;
+export declare const normalizeSource: unique symbol;
+export declare const itemTemplate: unique symbol;
+export declare const readLabelValue: unique symbol;
+export declare const rippleTemplate: unique symbol;
+export declare const openedValue: unique symbol;
+export declare const openedValuePrivate: unique symbol;
+export declare const autocompleteFocus: unique symbol;
 
 /**
  * Autocomplete for a text input with Material Design and Anypoint themes.
@@ -316,4 +317,10 @@ export class AnypointAutocomplete extends LitElement {
    * @return {Array<Object>} Returns a template for the list item
    */
   _listTemplate(): TemplateResult[];
+
+  /**
+   * @param item A suggestion to render
+   * @returns Value for the label part of the suggestion
+   */
+  [readLabelValue](item: Suggestion): TemplateResult|string;
 }

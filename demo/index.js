@@ -88,7 +88,11 @@ class ComponentDemo extends ArcDemoPage {
       const items = [];
       for (let i = 0; i < 25; i++) {
         // @ts-ignore
-        items.push(`${value} ${chance.word()}`);
+        const item = `${value} ${chance.word()}`;
+        items.push({
+          label: html`HTML value: <b>${item}</b>`,
+          value: item,
+        });
       }
       e.target.source = items;
     }, 700);
@@ -187,4 +191,3 @@ class ComponentDemo extends ArcDemoPage {
 }
 const instance = new ComponentDemo();
 instance.render();
-window.demo = instance;
