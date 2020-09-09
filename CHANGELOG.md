@@ -155,3 +155,26 @@
 * adding TemplateResult label and description support [8a32e47](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/8a32e47a64c58bd8d1c80d35d123d1b93c64ea80) by Pawel
 
 
+<a name="0.2.4"></a>
+## [0.2.4](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.2.2...0.2.4) (2020-09-09)
+
+### Build
+
+* bumping version [162e867](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/162e867338543384dcb4d38e62e29adb0e0b2329) by Pawel
+* bumping version [d297264](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/d29726485635930589c897b61c7092f28d15cb42) by Pawel
+
+
+### Update
+
+* [ci skip] automated merge master->stage. syncing main branches [00026a0](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/00026a078376215beb48eb1894dbb25906cb7607) by Ci agent
+* updating dependencies [ef31b99](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/ef31b99624b076f780068e1ba8ec1468c7eb667e) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [9436a52](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/9436a525c751a57093462854e5ffb702eb9a251b) by Ci agent
+
+
+### Features
+
+* adding the filter property to the suggestion model [443484c](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/443484cb8d57ff04afaf0c4d97c1f7b23a55d4f1) by Pawel
+* adding `noTargetValueUpdate` property [cbd7b16](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/cbd7b1646ae46cb53db69c6f4ff2ed3be76a1860) by Pawel
+* adding TemplateResult label and description support [8a32e47](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/8a32e47a64c58bd8d1c80d35d123d1b93c64ea80) by Pawel
+
+
