@@ -167,6 +167,11 @@ export class AnypointAutocomplete extends LitElement {
    * When set it won't setup `aria-controls` on target element.
    */
   noTargetControls: boolean;
+  /**
+   * When set the element won't update the `value` property on the
+   * target when a selection is made.
+   */
+  noTargetValueUpdate: boolean;
 
   isAttached: boolean;
 

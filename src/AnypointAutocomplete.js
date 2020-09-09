@@ -172,7 +172,12 @@ export class AnypointAutocomplete extends LitElement {
       /**
        * When set it won't setup `aria-controls` on target element.
        */
-      noTargetControls: { type: Boolean }
+      noTargetControls: { type: Boolean },
+      /**
+       * When set the element won't update the `value` property on the
+       * target when a selection is made.
+       */
+      noTargetValueUpdate: { type: Boolean },
     };
   }
 
@@ -383,6 +388,7 @@ export class AnypointAutocomplete extends LitElement {
     this.noTargetControls = false;
     this.noAnimations = false;
     this.noink = false;
+    this.noTargetValueUpdate = false;
   }
 
   connectedCallback() {
@@ -732,14 +738,18 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     const result = String(value.value);
-    target.value = result;
-    target.dispatchEvent(
-      new CustomEvent('input', {
-        detail: {
-          autocomplete: this
-        }
-      })
-    );
+
+    if (!this.noTargetValueUpdate) {
+      target.value = result;
+      target.dispatchEvent(
+        new CustomEvent('input', {
+          detail: {
+            autocomplete: this
+          }
+        })
+      );
+    }
+
     this[openedValue] = false;
     this._inform(sourceSuggestion);
     if (!this.__ignoreCloseRefocus) {

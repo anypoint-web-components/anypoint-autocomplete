@@ -129,6 +129,18 @@ describe('<anypoint-autocomplete>', () => {
     <anypoint-autocomplete compatibility target="f2"></anypoint-autocomplete></div>`);
   }
 
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
+  async function noTargetValueUpdateFixture() {
+    return fixture(html`
+      <div>
+        <input id="f1" />
+        <anypoint-autocomplete noanimations target="f1" .source="${suggestions}"></anypoint-autocomplete>
+      </div>
+    `);
+  }
+
   describe('Initialization', () => {
     let element;
     before(async () => {
@@ -261,6 +273,23 @@ describe('<anypoint-autocomplete>', () => {
       const label = element._listbox.querySelector('anypoint-item b');
       assert.ok(label, 'bold label exists');
       assert.include(label.textContent, 'Apple');
+    });
+  });
+
+  describe('No input update', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+    beforeEach(async () => {
+      const region = await noTargetValueUpdateFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      input = region.querySelector('input');
+    });
+
+    it('does not update input value', async () => {
+      input.value = '';
+      notifyInput(input);
+      element._listbox.selectNext();
+      assert.equal(input.value, '');
     });
   });
 
