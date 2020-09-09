@@ -30,6 +30,10 @@ export declare interface Suggestion {
    * Keep it short!
    */
   description?: string | TemplateResult;
+  /**
+   * WHen set this value is used to filter the suggestions instead of `value`
+   */
+  filter?: string;
 }
 
 declare interface InternalSuggestion extends Suggestion {

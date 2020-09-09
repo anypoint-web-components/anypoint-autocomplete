@@ -690,11 +690,12 @@ export class AnypointAutocomplete extends LitElement {
     if (!query && this.openOnFocus) {
       return source;
     }
-    const filter = (item) => {
-      const { value='' } = item;
-      return String(value).toLowerCase().includes(query);
+    const filterFn = (item) => {
+      const { value='', filter } = item;
+      const filterValue = filter || String(value);
+      return filterValue.toLowerCase().includes(query);
     };
-    return source.filter(filter);
+    return source.filter(filterFn);
   }
 
   _closeHandler() {

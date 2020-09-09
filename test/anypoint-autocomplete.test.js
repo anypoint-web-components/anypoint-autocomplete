@@ -786,6 +786,23 @@ describe('<anypoint-autocomplete>', () => {
       ]);
     });
 
+    it('Filters out through the "filter" property', async () => {
+      const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
+      element.source = [{ value: 'A', filter: 'x' }, { value: 'Aa', filter: 'y' }, { value: 'b', filter: 'z' }, { value: 'Ab', filter: 'xa' }];
+      element._previousQuery = 'x';
+      element._filterSuggestions();
+      assert.typeOf(element.suggestions, 'array');
+      assert.deepEqual(element.suggestions, [{
+        filter: 'x',
+        value: 'A',
+        index: 0,
+      }, {
+        filter: 'xa',
+        value: 'Ab',
+        index: 3,
+      }]);
+    });
+
     it('returns all when no query', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
       element.source = [{ value: 'a' }, { value: 'aa' }, { value: 'ab' }, { value: 'b' }];
