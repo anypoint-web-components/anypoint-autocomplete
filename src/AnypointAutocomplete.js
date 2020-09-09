@@ -44,6 +44,7 @@ export const suggestionsValue = Symbol('suggestionsValue');
 export const processSource = Symbol('processSource');
 export const normalizeSource = Symbol('normalizeSource');
 export const itemTemplate = Symbol('itemTemplate');
+export const readLabelValue = Symbol('readLabelValue');
 export const rippleTemplate = Symbol('rippleTemplate');
 export const openedValue = Symbol('openedValue');
 export const openedValuePrivate = Symbol('openedValuePrivate');
@@ -171,7 +172,12 @@ export class AnypointAutocomplete extends LitElement {
       /**
        * When set it won't setup `aria-controls` on target element.
        */
-      noTargetControls: { type: Boolean }
+      noTargetControls: { type: Boolean },
+      /**
+       * When set the element won't update the `value` property on the
+       * target when a selection is made.
+       */
+      noTargetValueUpdate: { type: Boolean },
     };
   }
 
@@ -382,6 +388,7 @@ export class AnypointAutocomplete extends LitElement {
     this.noTargetControls = false;
     this.noAnimations = false;
     this.noink = false;
+    this.noTargetValueUpdate = false;
   }
 
   connectedCallback() {
@@ -731,14 +738,18 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     const result = String(value.value);
-    target.value = result;
-    target.dispatchEvent(
-      new CustomEvent('input', {
-        detail: {
-          autocomplete: this
-        }
-      })
-    );
+
+    if (!this.noTargetValueUpdate) {
+      target.value = result;
+      target.dispatchEvent(
+        new CustomEvent('input', {
+          detail: {
+            autocomplete: this
+          }
+        })
+      );
+    }
+
     this[openedValue] = false;
     this._inform(sourceSuggestion);
     if (!this.__ignoreCloseRefocus) {
@@ -949,19 +960,32 @@ export class AnypointAutocomplete extends LitElement {
 
   /**
    * @param {Suggestion} item A suggestion to render
+   * @return {TemplateResult|string} Value for the label part of the suggestion
+   */
+  [readLabelValue](item) {
+    if (item.label && item.label.constructor && item.label.constructor.name === 'TemplateResult') {
+      return item.label;
+    }
+    return String(item.label || item.value);
+  }
+
+  /**
+   * @param {Suggestion} item A suggestion to render
    * @return {TemplateResult} Template for a single drop down item
    */
   [itemTemplate](item) {
-    const label = String(item.label || item.value);
+    const label = this[readLabelValue](item);
     const { description } = item;
     const { compatibility, noink } = this;
     if (description) {
-      return html`<anypoint-item ?compatibility="${compatibility}">
-      <anypoint-item-body ?compatibility="${compatibility}" twoline>
-        <div>${label}</div>
-        <div secondary>${description}</div>
-        ${this[rippleTemplate](compatibility, noink)}
-      </anypoint-item-body></anypoint-item>`;
+      return html`
+      <anypoint-item ?compatibility="${compatibility}">
+        <anypoint-item-body ?compatibility="${compatibility}" twoline>
+          <div>${label}</div>
+          <div secondary>${description}</div>
+          ${this[rippleTemplate](compatibility, noink)}
+        </anypoint-item-body>
+      </anypoint-item>`;
     }
     return html`<anypoint-item ?compatibility="${compatibility}">
       <div>${label}</div>

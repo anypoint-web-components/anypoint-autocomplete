@@ -35,6 +35,34 @@ describe('<anypoint-autocomplete>', () => {
     },
   ];
 
+  const htmlSuggestions = [
+    {
+      value: 'Apple',
+      label: html`<b>Apple</b>`,
+      id: 1,
+    },
+    {
+      value: 'Apricot',
+      label: html`<b>Apricot</b>`,
+      id: 2,
+    },
+    {
+      value: 'Avocado',
+      label: html`<b>Avocado</b>`,
+      id: 3,
+    },
+    {
+      value: 'Banana',
+      label: html`<b>Banana</b>`,
+      id: 4,
+    },
+    {
+      value: 'Olive',
+      label: html`<b>Olive</b>`,
+      id: 5,
+    },
+  ];
+
   function notifyInput(target) {
     const e = document.createEvent('Event');
     e.initEvent('input', true, false);
@@ -99,6 +127,18 @@ describe('<anypoint-autocomplete>', () => {
   async function compatibilityFixture() {
     return fixture(html`<div><input id="f2">
     <anypoint-autocomplete compatibility target="f2"></anypoint-autocomplete></div>`);
+  }
+
+  /**
+   * @return {Promise<HTMLDivElement>}
+   */
+  async function noTargetValueUpdateFixture() {
+    return fixture(html`
+      <div>
+        <input id="f1" />
+        <anypoint-autocomplete noanimations target="f1" .source="${suggestions}"></anypoint-autocomplete>
+      </div>
+    `);
   }
 
   describe('Initialization', () => {
@@ -223,6 +263,34 @@ describe('<anypoint-autocomplete>', () => {
       element._listbox.selectNext();
       assert.equal(input.value, 'v1');
     });
+
+    it('renders HTML template label', async () => {
+      element.source = htmlSuggestions;
+      await nextFrame();
+      input.value = 'appl';
+      notifyInput(input);
+      await nextFrame();
+      const label = element._listbox.querySelector('anypoint-item b');
+      assert.ok(label, 'bold label exists');
+      assert.include(label.textContent, 'Apple');
+    });
+  });
+
+  describe('No input update', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+    beforeEach(async () => {
+      const region = await noTargetValueUpdateFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      input = region.querySelector('input');
+    });
+
+    it('does not update input value', async () => {
+      input.value = '';
+      notifyInput(input);
+      element._listbox.selectNext();
+      assert.equal(input.value, '');
+    });
   });
 
   describe('Suggestions with description', () => {
@@ -251,6 +319,19 @@ describe('<anypoint-autocomplete>', () => {
       assert.isTrue(body.hasAttribute('twoLine'));
       const desc = body.querySelector('[secondary]')
       assert.equal(desc.textContent.trim(), 'd1');
+    });
+
+    it('renders HTML template description', async () => {
+      element.source = htmlSuggestions.map((i) => {
+        i.description = html`<i>item description</i>`;
+        return i;
+      });
+      await nextFrame();
+      input.value = 'appl';
+      notifyInput(input);
+      await nextFrame();
+      const label = element._listbox.querySelector('anypoint-item [secondary] i');
+      assert.ok(label, 'description exists');
     });
   });
 
@@ -420,6 +501,18 @@ describe('<anypoint-autocomplete>', () => {
       element.addEventListener('selected', spy);
       element._listbox.selectNext();
       assert.deepEqual(spy.args[0][0].detail.value, objectSuggestions[1]);
+    });
+
+    it('sets selected suggestion object with HTML labels', async () => {
+      element.source = htmlSuggestions;
+      input.value = 'apr';
+      notifyInput(input);
+      await aTimeout(10);
+      const spy = sinon.spy();
+      element.addEventListener('selected', spy);
+      element._listbox.selectNext();
+      assert.deepEqual(spy.args[0][0].detail.value.id, 2);
+      assert.deepEqual(spy.args[0][0].detail.value.value, 'Apricot');
     });
   });
 
