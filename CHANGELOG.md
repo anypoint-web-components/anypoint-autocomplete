@@ -133,3 +133,25 @@
 * fixing opened state when no suggestions [87edb42](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/87edb420e5d92208e1aa6481b3a117c0be379f6d) by Pawel
 
 
+<a name="0.2.3"></a>
+## [0.2.3](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.2.1...0.2.3) (2020-09-09)
+
+### Build
+
+* bumping version [d297264](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/d29726485635930589c897b61c7092f28d15cb42) by Pawel
+
+
+### Update
+
+* updating dependencies [ef31b99](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/ef31b99624b076f780068e1ba8ec1468c7eb667e) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [9436a52](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/9436a525c751a57093462854e5ffb702eb9a251b) by Ci agent
+* updating dependencies [6efe40f](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/6efe40fc88f50912a1df4b5d852c0ade5ad570c0) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [2130b60](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/2130b600b6231c75ed2fa5b0489997c744a92a09) by Ci agent
+
+
+### Features
+
+* adding `noTargetValueUpdate` property [cbd7b16](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/cbd7b1646ae46cb53db69c6f4ff2ed3be76a1860) by Pawel
+* adding TemplateResult label and description support [8a32e47](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/8a32e47a64c58bd8d1c80d35d123d1b93c64ea80) by Pawel
+
+
