@@ -34,6 +34,12 @@ export declare interface Suggestion {
    * WHen set this value is used to filter the suggestions instead of `value`
    */
   filter?: string;
+  /**
+   * This property is transparent for the component but useful when handling selection
+   * events to recognize which suggestion was used. It is up to the author to handle this
+   * property.
+   */
+  id?: string|number;
 }
 
 declare interface InternalSuggestion extends Suggestion {
@@ -63,8 +69,9 @@ export class AnypointAutocomplete extends LitElement {
    * A target input field to observe.
    * It accepts an element which is the input with `value` property or
    * an id of an element that is a child of the parent element of this node.
+   * @attribute
    */
-  target: HTMLElement;
+  target: HTMLElement|string;
   _oldTarget: HTMLElement;
   /**
    * List of suggestions to display.
@@ -92,10 +99,12 @@ export class AnypointAutocomplete extends LitElement {
    * Set this to true if you use async operation in response for query event.
    * This will display a loader when querying for more suggestions.
    * Do not use it it you do not handle suggestions asynchronously.
+   * @attribute
    */
   loader: boolean;
   /**
-   * If true it will opend suggestions on input field focus.
+   * If true it will opened suggestions on input field focus.
+   * @attribute
    */
   openOnFocus: boolean;
 
@@ -104,6 +113,7 @@ export class AnypointAutocomplete extends LitElement {
    * The orientation against which to align the element vertically
    * relative to the text input.
    * Possible values are "top", "bottom", "middle", "auto".
+   * @attribute
    */
   verticalAlign: string;
   /**
@@ -119,12 +129,14 @@ export class AnypointAutocomplete extends LitElement {
    * Conversely if `verticalAlign` is "bottom", this offset will increase
    * or decrease the distance to the bottom side of the screen: a negative
    * offset will move the dropdown downwards; a positive one, upwards.
+   * @attribute
    */
   verticalOffset: number;
   /**
    * The orientation against which to align the element horizontally
    * relative to the text input. Possible values are "left", "right",
    * "center", "auto".
+   * @attribute
    */
   horizontalAlign: string;
   /**
@@ -140,6 +152,7 @@ export class AnypointAutocomplete extends LitElement {
    * Conversely if `horizontalAlign` is "right", this offset will increase
    * or decrease the distance to the right side of the screen: a negative
    * offset will move the dropdown to the right; a positive one, to the left.
+   * @attribute
    */
   horizontalOffset: number;
   /**
@@ -147,19 +160,23 @@ export class AnypointAutocomplete extends LitElement {
    * happens. Possible values: lock - blocks scrolling from happening, refit -
    * computes the new position on the overlay cancel - causes the overlay to
    * close
+   * @attribute
    */
   scrollAction: string;
   /**
    * Removes animation from the dropdown.
+   * @attribute
    */
   noAnimations: boolean;
   /**
    * Removes ripple effect from list items.
    * This effect is always disabled when `compatibility` is set.
+   * @attribute
    */
   noink: boolean;
   /**
    * Enables compatibility with Anypoint components.
+   * @attribute
    */
   compatibility: boolean;
   /**
@@ -169,11 +186,13 @@ export class AnypointAutocomplete extends LitElement {
 
   /**
    * When set it won't setup `aria-controls` on target element.
+   * @attribute
    */
   noTargetControls: boolean;
   /**
    * When set the element won't update the `value` property on the
    * target when a selection is made.
+   * @attribute
    */
   noTargetValueUpdate: boolean;
 
@@ -212,7 +231,7 @@ export class AnypointAutocomplete extends LitElement {
   _setComboboxWidth(): void;
 
   /**
-   * Setups relavent aria attributes in the target input.
+   * Setups relevant aria attributes in the target input.
    * @param target An element to set attribute on to
    */
   _setupTargetAria(target: HTMLElement): void;
@@ -239,10 +258,10 @@ export class AnypointAutocomplete extends LitElement {
   renderSuggestions(): void;
 
   /**
-   * Disaptches query event and returns it.
+   * Dispatches query event and returns it.
    * @param value Current input value.
    */
-  _disaptchQuery(value: string): CustomEvent;
+  _dispatchQuery(value: string): CustomEvent;
 
   /**
    * Filter `source` array for current value.
@@ -290,13 +309,13 @@ export class AnypointAutocomplete extends LitElement {
   _onEscKey(): void;
 
   /**
-   * Accetps first suggestion from the dropdown when opened.
+   * Accepts first suggestion from the dropdown when opened.
    */
   _onEnterKey(): void;
 
   /**
    * The element refocuses on the input when suggestions closes.
-   * Also, the lisbox element is focusable so with tab it can be next target.
+   * Also, the listbox element is focusable so with tab it can be next target.
    * Finally, the dropdown has close animation that takes some time to finish
    * so it will try to refocus after the animation finish.
    * This function sets flags in debouncer to prohibit this.

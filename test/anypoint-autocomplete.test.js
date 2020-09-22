@@ -83,7 +83,7 @@ describe('<anypoint-autocomplete>', () => {
     return fixture(html`
       <div>
         <input id="f1" />
-        <anypoint-autocomplete noanimations target="f1" .source="${suggestions}"></anypoint-autocomplete>
+        <anypoint-autocomplete noAnimations target="f1" .source="${suggestions}"></anypoint-autocomplete>
       </div>
     `);
   }
@@ -191,7 +191,7 @@ describe('<anypoint-autocomplete>', () => {
       assert.isNotEmpty(element.id);
     });
 
-    it('sets position style programatically', () => {
+    it('sets position style programmatically', () => {
       assert.equal(element.style.position.trim(), 'absolute');
     });
   });
@@ -373,7 +373,7 @@ describe('<anypoint-autocomplete>', () => {
       assert.equal(element.target, 'r1');
     });
 
-    it('reinitializes parent when re-attached to the dom', async () => {
+    it('re-initializes parent when re-attached to the dom', async () => {
       const region = await fixture(html`<div>
         <input id="r1">
         <anypoint-autocomplete></anypoint-autocomplete>
@@ -384,6 +384,8 @@ describe('<anypoint-autocomplete>', () => {
       element.target = 'r1';
       parent.appendChild(element);
       const input = region.querySelector('input');
+      // @ts-ignore
+      // @ts-ignore
       assert.isTrue(element.target === input);
     });
 
@@ -394,7 +396,7 @@ describe('<anypoint-autocomplete>', () => {
         <anypoint-autocomplete target="r1"></anypoint-autocomplete>
       </div>`);
       const element = region.querySelector('anypoint-autocomplete');
-      const i1 = region.querySelector('#i1');
+      const i1 = /** @type HTMLInputElement */ (region.querySelector('#i1'));
       element.target = 'i2';
       const spy = sinon.spy();
       element.addEventListener('query', spy);
@@ -410,7 +412,7 @@ describe('<anypoint-autocomplete>', () => {
         <anypoint-autocomplete target="r1"></anypoint-autocomplete>
       </div>`);
       const element = region.querySelector('anypoint-autocomplete');
-      const i2 = region.querySelector('#i2');
+      const i2 = /** @type HTMLInputElement */ (region.querySelector('#i2'));
       element.target = 'i2';
       const spy = sinon.spy();
       element.addEventListener('query', spy);
@@ -575,7 +577,7 @@ describe('<anypoint-autocomplete>', () => {
       assert.equal(element._previousQuery, 'a');
     });
 
-    it('accespts numeric input', () => {
+    it('accepts numeric input', () => {
       input.type = 'number';
       element._oldTarget.parentElement.removeChild(element._oldTarget);
       element._oldTarget = {
@@ -586,9 +588,9 @@ describe('<anypoint-autocomplete>', () => {
       assert.equal(element._previousQuery, '2');
     });
 
-    it('calls _disaptchQuery()', () => {
+    it('calls _dispatchQuery()', () => {
       input.value = 'a';
-      const spy = sinon.spy(element, '_disaptchQuery');
+      const spy = sinon.spy(element, '_dispatchQuery');
       element.renderSuggestions();
       assert.equal(spy.args[0][0], input.value);
     });
@@ -944,7 +946,7 @@ describe('<anypoint-autocomplete>', () => {
         called = true;
       };
       element.onquery = f;
-      element._disaptchQuery('test');
+      element._dispatchQuery('test');
       element.onquery = null;
       assert.isTrue(called);
     });
@@ -960,7 +962,7 @@ describe('<anypoint-autocomplete>', () => {
       };
       element.onquery = f1;
       element.onquery = f2;
-      element._disaptchQuery('test');
+      element._dispatchQuery('test');
       element.onquery = null;
       assert.isFalse(called1);
       assert.isTrue(called2);
@@ -1023,7 +1025,7 @@ describe('<anypoint-autocomplete>', () => {
       await nextFrame();
     });
 
-    it('sets compatibility property on anypoin-item', () => {
+    it('sets compatibility property on anypoint-item', () => {
       const item = element.querySelector('anypoint-item');
       assert.isTrue(item.compatibility);
     });
@@ -1211,7 +1213,7 @@ describe('<anypoint-autocomplete>', () => {
       assert.equal(result, null);
     });
 
-    it('sets aria-controls on the elment', async () => {
+    it('sets aria-controls on the element', async () => {
       const element = await basicFixtureA11y();
       const result = element.querySelector('anypoint-autocomplete').getAttribute('aria-controls');
       assert.isNotEmpty(result);

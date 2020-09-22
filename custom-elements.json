@@ -1,0 +1,190 @@
+{
+  "version": "experimental",
+  "tags": [
+    {
+      "name": "anypoint-autocomplete",
+      "path": "./anypoint-autocomplete.js",
+      "description": "Autocomplete for a text input with Material Design and Anypoint themes.",
+      "attributes": [
+        {
+          "name": "target",
+          "description": "A target input field to observe.\nIt accepts an element which is the input with `value` property or\nan id of an element that is a child of the parent element of this node.",
+          "type": "string | HTMLElement"
+        },
+        {
+          "name": "loader",
+          "description": "Set this to true if you use async operation in response for query event.\nThis will display a loader when querying for more suggestions.\nDo not use it it you do not handle suggestions asynchronously.",
+          "type": "boolean"
+        },
+        {
+          "name": "openOnFocus",
+          "description": "If true it will opened suggestions on input field focus.",
+          "type": "boolean"
+        },
+        {
+          "name": "verticalAlign",
+          "description": "The orientation against which to align the element vertically\nrelative to the text input.\nPossible values are \"top\", \"bottom\", \"middle\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "verticalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `verticalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `verticalAlign`.\n\nIf `verticalAlign` is \"top\" or \"middle\", this offset will increase or\ndecrease the distance to the top side of the screen: a negative offset\nwill move the dropdown upwards; a positive one, downwards.\n\nConversely if `verticalAlign` is \"bottom\", this offset will increase\nor decrease the distance to the bottom side of the screen: a negative\noffset will move the dropdown downwards; a positive one, upwards.",
+          "type": "number"
+        },
+        {
+          "name": "horizontalAlign",
+          "description": "The orientation against which to align the element horizontally\nrelative to the text input. Possible values are \"left\", \"right\",\n\"center\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "horizontalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `horizontalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `horizontalAlign`.\n\nIf `horizontalAlign` is \"left\" or \"center\", this offset will increase or\ndecrease the distance to the left side of the screen: a negative offset\nwill move the dropdown to the left; a positive one, to the right.\n\nConversely if `horizontalAlign` is \"right\", this offset will increase\nor decrease the distance to the right side of the screen: a negative\noffset will move the dropdown to the right; a positive one, to the left.",
+          "type": "number"
+        },
+        {
+          "name": "scrollAction",
+          "description": "Determines which action to perform when scroll outside an opened overlay\nhappens. Possible values: lock - blocks scrolling from happening, refit -\ncomputes the new position on the overlay cancel - causes the overlay to\nclose",
+          "type": "string"
+        },
+        {
+          "name": "noAnimations",
+          "description": "Removes animation from the dropdown.",
+          "type": "boolean"
+        },
+        {
+          "name": "noink",
+          "description": "Removes ripple effect from list items.\nThis effect is always disabled when `compatibility` is set.",
+          "type": "boolean"
+        },
+        {
+          "name": "compatibility",
+          "description": "Enables compatibility with Anypoint components.",
+          "type": "boolean"
+        },
+        {
+          "name": "noTargetControls",
+          "description": "When set it won't setup `aria-controls` on target element.",
+          "type": "boolean"
+        },
+        {
+          "name": "noTargetValueUpdate",
+          "description": "When set the element won't update the `value` property on the\ntarget when a selection is made.",
+          "type": "boolean"
+        }
+      ],
+      "properties": [
+        {
+          "name": "target",
+          "attribute": "target",
+          "description": "A target input field to observe.\nIt accepts an element which is the input with `value` property or\nan id of an element that is a child of the parent element of this node.",
+          "type": "string | HTMLElement"
+        },
+        {
+          "name": "source",
+          "description": "List of suggestions to display.\nIf the array items are strings they will be used for display a suggestions and\nto insert a value.\nIf the list is an object the each object must contain `value` and `display`\nproperties.\nThe `display` property will be used in the suggestions list and the\n`value` property will be used to insert the value to the referenced text field.",
+          "type": "string[] | Suggestion[]"
+        },
+        {
+          "name": "suggestions",
+          "description": "List of suggestion that are rendered.",
+          "type": "string[] | InternalSuggestion[]"
+        },
+        {
+          "name": "loader",
+          "attribute": "loader",
+          "description": "Set this to true if you use async operation in response for query event.\nThis will display a loader when querying for more suggestions.\nDo not use it it you do not handle suggestions asynchronously.",
+          "type": "boolean"
+        },
+        {
+          "name": "openOnFocus",
+          "attribute": "openOnFocus",
+          "description": "If true it will opened suggestions on input field focus.",
+          "type": "boolean"
+        },
+        {
+          "name": "opened",
+          "type": "boolean"
+        },
+        {
+          "name": "verticalAlign",
+          "attribute": "verticalAlign",
+          "description": "The orientation against which to align the element vertically\nrelative to the text input.\nPossible values are \"top\", \"bottom\", \"middle\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "verticalOffset",
+          "attribute": "verticalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `verticalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `verticalAlign`.\n\nIf `verticalAlign` is \"top\" or \"middle\", this offset will increase or\ndecrease the distance to the top side of the screen: a negative offset\nwill move the dropdown upwards; a positive one, downwards.\n\nConversely if `verticalAlign` is \"bottom\", this offset will increase\nor decrease the distance to the bottom side of the screen: a negative\noffset will move the dropdown downwards; a positive one, upwards.",
+          "type": "number"
+        },
+        {
+          "name": "horizontalAlign",
+          "attribute": "horizontalAlign",
+          "description": "The orientation against which to align the element horizontally\nrelative to the text input. Possible values are \"left\", \"right\",\n\"center\", \"auto\".",
+          "type": "string"
+        },
+        {
+          "name": "horizontalOffset",
+          "attribute": "horizontalOffset",
+          "description": "A pixel value that will be added to the position calculated for the\ngiven `horizontalAlign`, in the direction of alignment. You can think\nof it as increasing or decreasing the distance to the side of the\nscreen given by `horizontalAlign`.\n\nIf `horizontalAlign` is \"left\" or \"center\", this offset will increase or\ndecrease the distance to the left side of the screen: a negative offset\nwill move the dropdown to the left; a positive one, to the right.\n\nConversely if `horizontalAlign` is \"right\", this offset will increase\nor decrease the distance to the right side of the screen: a negative\noffset will move the dropdown to the right; a positive one, to the left.",
+          "type": "number"
+        },
+        {
+          "name": "scrollAction",
+          "attribute": "scrollAction",
+          "description": "Determines which action to perform when scroll outside an opened overlay\nhappens. Possible values: lock - blocks scrolling from happening, refit -\ncomputes the new position on the overlay cancel - causes the overlay to\nclose",
+          "type": "string"
+        },
+        {
+          "name": "noAnimations",
+          "attribute": "noAnimations",
+          "description": "Removes animation from the dropdown.",
+          "type": "boolean"
+        },
+        {
+          "name": "noink",
+          "attribute": "noink",
+          "description": "Removes ripple effect from list items.\nThis effect is always disabled when `compatibility` is set.",
+          "type": "boolean"
+        },
+        {
+          "name": "compatibility",
+          "attribute": "compatibility",
+          "description": "Enables compatibility with Anypoint components.",
+          "type": "boolean"
+        },
+        {
+          "name": "legacy",
+          "type": "boolean",
+          "deprecatedMessage": "Use `compatibility` instead."
+        },
+        {
+          "name": "noTargetControls",
+          "attribute": "noTargetControls",
+          "description": "When set it won't setup `aria-controls` on target element.",
+          "type": "boolean"
+        },
+        {
+          "name": "noTargetValueUpdate",
+          "attribute": "noTargetValueUpdate",
+          "description": "When set the element won't update the `value` property on the\ntarget when a selection is made.",
+          "type": "boolean"
+        },
+        {
+          "name": "isAttached",
+          "type": "boolean"
+        },
+        {
+          "name": "onquery",
+          "description": "A handler for `query` event",
+          "type": "EventListener | null"
+        },
+        {
+          "name": "onselected",
+          "description": "A handler for `selected` event",
+          "type": "EventListener | null"
+        }
+      ]
+    }
+  ]
+}

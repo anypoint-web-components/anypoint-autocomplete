@@ -53,8 +53,7 @@ export const autocompleteFocus = Symbol('autocompleteFocus');
 /**
  * # `<paper-autocomplete>`
  *
- * @customElement
- * @demo demo/index.html
+ * @element anypoint-autocomplete
  */
 export class AnypointAutocomplete extends LitElement {
   get styles() {
@@ -73,6 +72,7 @@ export class AnypointAutocomplete extends LitElement {
        * A target input field to observe.
        * It accepts an element which is the input with `value` property or
        * an id of an element that is a child of the parent element of this node.
+       * @attribute
        */
       target: {},
       /**
@@ -83,6 +83,7 @@ export class AnypointAutocomplete extends LitElement {
        * properties.
        * The `display` property will be used in the suggestions list and the
        * `value` property will be used to insert the value to the referenced text field.
+       * @attribute
        */
       source: { type: Array },
       /**
@@ -97,18 +98,21 @@ export class AnypointAutocomplete extends LitElement {
        * Set this to true if you use async operation in response for query event.
        * This will render a loader when querying for more suggestions.
        * Do not use it it you do not handle suggestions asynchronously.
+       * @attribute
        */
       loader: { type: Boolean, reflect: true },
       /**
-       * If true it will opend suggestions on input field focus.
+       * If true it will opened suggestions on input field focus.
+       * @attribute
        */
-      openOnFocus: { type: Boolean },
+      openOnFocus: { type: Boolean, reflect: true },
       /**
        * The orientation against which to align the element vertically
        * relative to the text input.
        * Possible values are "top", "bottom", "middle", "auto".
+       * @attribute
        */
-      verticalAlign: { type: String },
+      verticalAlign: { type: String, reflect: true },
       /**
        * A pixel value that will be added to the position calculated for the
        * given `verticalAlign`, in the direction of alignment. You can think
@@ -122,14 +126,16 @@ export class AnypointAutocomplete extends LitElement {
        * Conversely if `verticalAlign` is "bottom", this offset will increase
        * or decrease the distance to the bottom side of the screen: a negative
        * offset will move the dropdown downwards; a positive one, upwards.
+       * @attribute
        */
-      verticalOffset: { type: Number },
+      verticalOffset: { type: Number, reflect: true },
       /**
        * The orientation against which to align the element horizontally
        * relative to the text input. Possible values are "left", "right",
        * "center", "auto".
+       * @attribute
        */
-      horizontalAlign: { type: String },
+      horizontalAlign: { type: String, reflect: true },
       /**
        * A pixel value that will be added to the position calculated for the
        * given `horizontalAlign`, in the direction of alignment. You can think
@@ -143,26 +149,31 @@ export class AnypointAutocomplete extends LitElement {
        * Conversely if `horizontalAlign` is "right", this offset will increase
        * or decrease the distance to the right side of the screen: a negative
        * offset will move the dropdown to the right; a positive one, to the left.
+       * @attribute
        */
-      horizontalOffset: { type: Number },
+      horizontalOffset: { type: Number, reflect: true },
       /**
        * Determines which action to perform when scroll outside an opened overlay
        * happens. Possible values: lock - blocks scrolling from happening, refit -
        * computes the new position on the overlay cancel - causes the overlay to
        * close
+       * @attribute
        */
-      scrollAction: { type: String },
+      scrollAction: { type: String, reflect: true },
       /**
        * Removes animation from the dropdown.
+       * @attribute
        */
-      noAnimations: { type: Boolean },
+      noAnimations: { type: Boolean, reflect: true },
       /**
        * Removes ripple effect from list items.
        * This effect is always disabled when `compatibility` is set.
+       * @attribute
        */
-      noink: { type: Boolean },
+      noink: { type: Boolean, reflect: true },
       /**
        * Enables compatibility with Anypoint components.
+       * @attribute
        */
       compatibility: { type: Boolean, reflect: true },
       /**
@@ -171,13 +182,15 @@ export class AnypointAutocomplete extends LitElement {
       legacy: { type: Boolean },
       /**
        * When set it won't setup `aria-controls` on target element.
+       * @attribute
        */
-      noTargetControls: { type: Boolean },
+      noTargetControls: { type: Boolean, reflect: true },
       /**
        * When set the element won't update the `value` property on the
        * target when a selection is made.
+       * @attribute
        */
-      noTargetValueUpdate: { type: Boolean },
+      noTargetValueUpdate: { type: Boolean, reflect: true },
     };
   }
 
@@ -221,7 +234,7 @@ export class AnypointAutocomplete extends LitElement {
     this.__loading = value;
     this.requestUpdate('_loading', value);
     this.dispatchEvent(
-      new CustomEvent('loading-chanegd', {
+      new CustomEvent('loadingchange', {
         detail: {
           value
         }
@@ -411,13 +424,13 @@ export class AnypointAutocomplete extends LitElement {
 
   firstUpdated() {
     // Styles are defined here because it does not uses shadow root
-    // to comply with accessibility requiremenets.
+    // to comply with accessibility requirements.
     // Styles defined in the component's `styles` getter won't be applied
     // to the children.
     const box = this._listbox;
     ensureNodeId(box);
-    box.style.backgroundColor = 'var(--anypoiont-autocomplete-background-color, #fff)';
-    box.style.boxShadow = 'var(--anypoiont-autocomplete-dropdown-shaddow)';
+    box.style.backgroundColor = 'var(--anypoint-autocomplete-background-color, #fff)';
+    box.style.boxShadow = 'var(--anypoint-autocomplete-dropdown-shadow)';
     const {id} = box;
     this.setAttribute('aria-owns', id);
     this.setAttribute('aria-controls', id);
@@ -486,7 +499,6 @@ export class AnypointAutocomplete extends LitElement {
       const node = parent.querySelector(`#${target}`);
       if (node) {
         this.target = node;
-
       }
     } else if (target) {
       target.addEventListener('input', this._targetInputHandler);
@@ -518,7 +530,7 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * Setups relavent aria attributes in the target input.
+   * Setups the relevant aria attributes in the target input.
    * @param {HTMLElement} target An element to set attribute on to
    */
   _setupTargetAria(target) {
@@ -600,7 +612,7 @@ export class AnypointAutocomplete extends LitElement {
       return;
     }
     this._listbox.selected = -1;
-    this._disaptchQuery(value);
+    this._dispatchQuery(value);
     this._previousQuery = value;
     this._filterSuggestions();
     if (this.loader) {
@@ -613,11 +625,11 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * Disaptches query event and returns it.
+   * Dispatches query event and returns it.
    * @param {String} value Current input value.
    * @return {CustomEvent}
    */
-  _disaptchQuery(value) {
+  _dispatchQuery(value) {
     const e = new CustomEvent('query', {
       detail: {
         value
@@ -831,7 +843,7 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   /**
-   * Accetps first suggestion from the dropdown when opened.
+   * Accepts first suggestion from the dropdown when opened.
    */
   _onEnterKey() {
     if (!this[openedValue]) {
@@ -851,7 +863,7 @@ export class AnypointAutocomplete extends LitElement {
 
   /**
    * The element refocuses on the input when suggestions closes.
-   * Also, the lisbox element is focusable so with tab it can be next target.
+   * Also, the listbox element is focusable so with tab it can be next target.
    * Finally, the dropdown has close animation that takes some time to finish
    * so it will try to refocus after the animation finish.
    * This function sets flags in debouncer to prohibit this.
@@ -1007,7 +1019,7 @@ export class AnypointAutocomplete extends LitElement {
  * Source should be updated event if the backend result with empty values and should set
  * the list to empty array.
  *
- * Nore that setting up source in response to this event after the user has closed
+ * Note that setting up source in response to this event after the user has closed
  * the dropdown it will have no effect at the moment.
  *
  * @event query
