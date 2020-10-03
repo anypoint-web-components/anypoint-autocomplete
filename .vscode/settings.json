@@ -13,6 +13,7 @@
     "nooverlap",
     "onquery",
     "onselected",
+    "openedchange",
     "useariaselected"
   ]
 }
