@@ -198,3 +198,18 @@
 * adding the filter property to the suggestion model [443484c](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/443484cb8d57ff04afaf0c4d97c1f7b23a55d4f1) by Pawel
 
 
+<a name="0.2.7"></a>
+## [0.2.7](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.2.5...0.2.7) (2020-10-03)
+
+### Update
+
+* updating vcode settings [cf21bb3](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/cf21bb3ba145d4ba5e5f9ec70b8ae0ae79664a88) by Pawel
+* adding better TS support [2eac632](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/2eac6320bb3e7784354498cf6d85942a043a21b0) by Pawel
+* [ci skip] automated merge master->stage. syncing main branches [6b444fb](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/6b444fbd601d80745960460754f9600eaff2df8c) by Ci agent
+
+
+### Features
+
+* adding more control over dropdown rendering [70cde00](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/70cde00ead9fb3ba3feeeb2c5d0ef4ad12844bfa) by Pawel
+
+
