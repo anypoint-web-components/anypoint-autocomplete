@@ -9,6 +9,7 @@ import { openedValue, autocompleteFocus } from '../src/AnypointAutocomplete.js';
 /** @typedef {import('../index.js').AnypointAutocomplete} AnypointAutocomplete */
 /** @typedef {import('../src/AnypointAutocomplete').InternalSuggestion} InternalSuggestion */
 /** @typedef {import('../src/AnypointAutocomplete').Suggestion} Suggestion */
+/** @typedef {import('@anypoint-web-components/anypoint-dropdown').AnypointDropdown} AnypointDropdown */
 
 describe('<anypoint-autocomplete>', () => {
   const suggestions = ['Apple', 'Apricot', 'Avocado', 'Banana'];
@@ -142,7 +143,7 @@ describe('<anypoint-autocomplete>', () => {
   }
 
   describe('Initialization', () => {
-    let element;
+    let element = /** @type AnypointAutocomplete */ (null);
     before(async () => {
       element = await basicFixture();
     });
@@ -197,8 +198,8 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('User input', () => {
-    let element;
-    let input;
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
     beforeEach(async () => {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
@@ -424,7 +425,7 @@ describe('<anypoint-autocomplete>', () => {
 
   describe('Suggestions processing', () => {
     let element = /** @type AnypointAutocomplete */ (null);
-    let input;
+    let input = /** @type HTMLInputElement */ (null);
     beforeEach(async () => {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
@@ -519,8 +520,8 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('Suggestions with progress', () => {
-    let element;
-    let input;
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
     beforeEach(async () => {
       const region = await loaderFixture();
       element = region.querySelector('anypoint-autocomplete');
@@ -563,8 +564,8 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('renderSuggestions()', () => {
-    let element;
-    let input;
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
     beforeEach(async () => {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
@@ -580,9 +581,8 @@ describe('<anypoint-autocomplete>', () => {
     it('accepts numeric input', () => {
       input.type = 'number';
       element._oldTarget.parentElement.removeChild(element._oldTarget);
-      element._oldTarget = {
-        value: 2,
-      };
+      // @ts-ignore
+      element._oldTarget = { value: 2, };
       element.renderSuggestions();
       element._oldTarget = undefined;
       assert.equal(element._previousQuery, '2');
@@ -871,7 +871,7 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('_targetFocusHandler()', () => {
-    let element;
+    let element = /** @type AnypointAutocomplete */ (null);
     const source = ['Apple', 'Appli', 'Applo'];
 
     beforeEach(async () => {
@@ -928,7 +928,7 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('onquery', () => {
-    let element;
+    let element = /** @type AnypointAutocomplete */ (null);
     beforeEach(async () => {
       element = await basicFixture();
     });
@@ -970,7 +970,7 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('onselected', () => {
-    let element;
+    let element = /** @type AnypointAutocomplete */ (null);
     beforeEach(async () => {
       const region = await stringTargetFixture();
       element = region.querySelector('anypoint-autocomplete');
@@ -1013,7 +1013,7 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('compatibility property', () => {
-    let element;
+    let element = /** @type AnypointAutocomplete */ (null);
     const source = ['Apple', 'Appli', 'Applo'];
 
     beforeEach(async () => {
@@ -1037,8 +1037,8 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('_targetKeydown', () => {
-    let element;
-    let input;
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
     beforeEach(async () => {
       const region = await suggestionsFixture();
       element = region.querySelector('anypoint-autocomplete');
@@ -1084,8 +1084,8 @@ describe('<anypoint-autocomplete>', () => {
   });
 
   describe('_onDownKey()', () => {
-    let element;
-    let input;
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
 
     beforeEach(async () => {
       const region = await suggestionsFixture();
@@ -1157,6 +1157,138 @@ describe('<anypoint-autocomplete>', () => {
       const spy = sinon.spy(element._listbox, 'highlightPrevious');
       element._onUpKey();
       assert.isTrue(spy.called);
+    });
+  });
+
+  describe('disabled state', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+
+    beforeEach(async () => {
+      const region = await suggestionsFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      input = region.querySelector('input');
+      element._previousQuery = 'a';
+      input.value = 'a';
+      element.disabled = true;
+    });
+
+    async function renderSuggestions() {
+      element._filterSuggestions();
+      await nextFrame();
+    }
+
+    it('does not render suggestions on input', () => {
+      const spy = sinon.spy(element, 'renderSuggestions');
+      input.dispatchEvent(new CustomEvent('input'));
+      assert.isFalse(spy.called);
+    });
+
+    it('does not render suggestions when calling renderSuggestions()', () => {
+      const spy = sinon.spy(element, '_filterSuggestions');
+      element.renderSuggestions();
+      assert.isFalse(spy.called);
+    });
+
+    it('ignores key events on the target', () => {
+      element.openOnFocus = true;
+      const spy = sinon.spy(element, '_onDownKey');
+      MockInteractions.keyDownOn(input, 40, [], 'ArrowDown');
+      assert.isFalse(spy.called);
+    });
+
+    it('ignores focus on the target', () => {
+      element[autocompleteFocus] = false;
+      input.focus();
+      assert.isFalse(element[autocompleteFocus]);
+    });
+
+    it('closes rendered suggestions', async () => {
+      element.disabled = false;
+      await renderSuggestions();
+      assert.isTrue(element[openedValue], 'suggestions are rendered');
+      element.disabled = true;
+      assert.isFalse(element[openedValue], 'suggestions are closed');
+    });
+  });
+
+  describe('resize event', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+    let dropDown = /** @type AnypointDropdown */ (null);
+
+    beforeEach(async () => {
+      const region = await suggestionsFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      input = region.querySelector('input');
+      element._previousQuery = 'a';
+      input.value = 'a';
+      element.disabled = true;
+      element._filterSuggestions();
+      await nextFrame();
+      dropDown = element.querySelector('anypoint-dropdown');
+    });
+
+    it('dispatches resize event when dropdown resizes', async () => {
+      const spy = sinon.spy();
+      element.addEventListener('resize', spy);
+      dropDown.dispatchEvent(new CustomEvent('iron-resize'));
+      await element.updateComplete;
+      await aTimeout(0);
+      assert.isTrue(spy.calledOnce);
+    });
+
+    it('ignores when not opened', async () => {
+      element[openedValue] = false;
+      const spy = sinon.spy();
+      element.addEventListener('resize', spy);
+      dropDown.dispatchEvent(new CustomEvent('iron-resize'));
+      await element.updateComplete;
+      await aTimeout(0);
+      assert.isFalse(spy.calledOnce);
+    });
+  });
+
+  describe('#positionTarget', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let dropDown = /** @type AnypointDropdown */ (null);
+
+    beforeEach(async () => {
+      const region = await suggestionsFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      dropDown = element.querySelector('anypoint-dropdown');
+    });
+
+    it('has the default positioning target', () => {
+      assert.equal(dropDown.positionTarget.localName, 'input');
+    });
+
+    it('has the set positioning target', async () => {
+      const target = document.createElement('span');
+      element.positionTarget = target;
+      await nextFrame();
+      assert.isTrue(dropDown.positionTarget === target);
+    });
+  });
+
+  describe('#fitPositionTarget', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let dropDown = /** @type AnypointDropdown */ (null);
+
+    beforeEach(async () => {
+      const region = await suggestionsFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      dropDown = element.querySelector('anypoint-dropdown');
+    });
+
+    it('has no fitPositionTarget set on the dropdown', () => {
+      assert.notOk(dropDown.fitPositionTarget);
+    });
+
+    it('has fitPositionTarget set on the dropdown', async () => {
+      element.fitPositionTarget = true;
+      await nextFrame();
+      assert.isTrue(dropDown.fitPositionTarget);
     });
   });
 

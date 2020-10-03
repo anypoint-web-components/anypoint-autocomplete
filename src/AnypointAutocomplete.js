@@ -191,6 +191,26 @@ export class AnypointAutocomplete extends LitElement {
        * @attribute
        */
       noTargetValueUpdate: { type: Boolean, reflect: true },
+      /** 
+       * When set it fits the positioning target width.
+       */
+      fitPositionTarget: { type: Boolean },
+      /** 
+       * When set to an element it will be used to position the dropdown 
+       * instead of the input element
+       */
+      positionTarget: { type: Object },
+      /** 
+       * The component sets CSS variables on the dropdown element by default.
+       * When this property is set then the component ignores setting these styles, 
+       * but you have to apply styles to the `anypoint-dropdown` element.
+       * The drop down element is not in the shadow DOM so the application has access to it.
+       */
+      ignoreDropdownStyling: { type: Boolean },
+      /** 
+       * When set it ignores any events on the input field.
+       */
+      disabled: { type: Boolean },
     };
   }
 
@@ -282,6 +302,7 @@ export class AnypointAutocomplete extends LitElement {
     this[openedValuePrivate] = value;
     this.requestUpdate();
     this._openedChanged(value);
+    // deprecate this.
     this.dispatchEvent(
       new CustomEvent('opened-changed', {
         detail: {
@@ -289,6 +310,7 @@ export class AnypointAutocomplete extends LitElement {
         }
       })
     );
+    this.dispatchEvent(new CustomEvent('openedchange'));
   }
 
   get legacy() {
@@ -299,18 +321,21 @@ export class AnypointAutocomplete extends LitElement {
     this.compatibility = value;
   }
 
-  get compatibility() {
-    return this._compatibility;
+  get disabled() {
+    return this._disabled;
   }
 
-  set compatibility(value) {
-    const old = this._compatibility;
+  set disabled(value) {
+    const old = this._disabled;
     /* istanbul ignore if */
     if (old === value) {
       return;
     }
-    this._compatibility = value;
-    this.requestUpdate('compatibility', old);
+    this._disabled = value;
+    this.requestUpdate('disabled', old);
+    if (value && this.opened) {
+      this[openedValue] = false;
+    }
   }
 
   get isAttached() {
@@ -402,6 +427,10 @@ export class AnypointAutocomplete extends LitElement {
     this.noAnimations = false;
     this.noink = false;
     this.noTargetValueUpdate = false;
+    this.fitPositionTarget = false;
+    this.positionTarget = undefined;
+    this.ignoreDropdownStyling = false;
+    this.disabled = false;
   }
 
   connectedCallback() {
@@ -429,8 +458,10 @@ export class AnypointAutocomplete extends LitElement {
     // to the children.
     const box = this._listbox;
     ensureNodeId(box);
-    box.style.backgroundColor = 'var(--anypoint-autocomplete-background-color, #fff)';
-    box.style.boxShadow = 'var(--anypoint-autocomplete-dropdown-shadow)';
+    if (!this.ignoreDropdownStyling) {
+      box.style.backgroundColor = 'var(--anypoint-autocomplete-background-color, #fff)';
+      box.style.boxShadow = 'var(--anypoint-autocomplete-dropdown-shadow)';
+    }
     const {id} = box;
     this.setAttribute('aria-owns', id);
     this.setAttribute('aria-controls', id);
@@ -516,7 +547,8 @@ export class AnypointAutocomplete extends LitElement {
    * Sets target input width on the listbox before rendering.
    */
   _setComboboxWidth() {
-    const target = this._oldTarget;
+    const { positionTarget, _oldTarget } = this;
+    const target = positionTarget || _oldTarget;
     const box = this._listbox;
     if (!target || !box || !target.nodeType || target.nodeType !== Node.ELEMENT_NODE) {
       return;
@@ -570,7 +602,7 @@ export class AnypointAutocomplete extends LitElement {
    * @param {CustomEvent} e
    */
   _targetInputHandler(e) {
-    if (e.detail) {
+    if (e.detail || this.disabled) {
       // This event is dispatched by the autocomplete
       return;
     }
@@ -581,7 +613,7 @@ export class AnypointAutocomplete extends LitElement {
    * Renders suggestions on target input focus if `openOnFocus` is set.
    */
   _targetFocusHandler() {
-    if (!this.openOnFocus || this.opened || this[autocompleteFocus] || this.__ignoreNextFocus) {
+    if (!this.openOnFocus || this.opened || this[autocompleteFocus] || this.__ignoreNextFocus || this.disabled) {
       return;
     }
     this[autocompleteFocus] = true;
@@ -596,7 +628,7 @@ export class AnypointAutocomplete extends LitElement {
    * there are suggestions to show.
    */
   renderSuggestions() {
-    if (!this.isAttached) {
+    if (!this.isAttached || this.disabled) {
       return;
     }
     let { value } = this._oldTarget;
@@ -619,6 +651,7 @@ export class AnypointAutocomplete extends LitElement {
       this._loading = true;
       if (!this[openedValue]) {
         this._setComboboxWidth();
+        this.notifyResize();
         this[openedValue] = true;
       }
     }
@@ -642,10 +675,11 @@ export class AnypointAutocomplete extends LitElement {
   /**
    * Filter `source` array for current value.
    */
-  _filterSuggestions() {
+  async _filterSuggestions() {
     if (!this._oldTarget || this._previousQuery === undefined) {
       return;
     }
+    const suggestionsBefore = (this._suggestions || []).length;
     this._suggestions = [];
     const source = /** @type InternalSuggestion[] */ (this[suggestionsValue]);
     if (!source || !source.length) {
@@ -683,13 +717,15 @@ export class AnypointAutocomplete extends LitElement {
       return valueA.localeCompare(valueB);
     });
     this._suggestions = /** @type Suggestion[] */ (filtered);
-    this.notifyResize();
-    setTimeout(() => {
-      if (!this.opened) {
-        this._setComboboxWidth();
-        this[openedValue] = true;
-      }
-    });
+    const suggestionsAfter = filtered.length;
+    await this.requestUpdate();
+    if (suggestionsAfter !== suggestionsBefore) {
+      this._setComboboxWidth();
+      this.notifyResize();
+    }
+    if (!this.opened) {
+      this[openedValue] = true;
+    }
   }
 
   /**
@@ -784,6 +820,9 @@ export class AnypointAutocomplete extends LitElement {
    * @param {KeyboardEvent} e
    */
   _targetKeydown(e) {
+    if (this.disabled) {
+      return;
+    }
     if (e.key === 'ArrowDown') {
       this._onDownKey();
       e.preventDefault();
@@ -897,6 +936,14 @@ export class AnypointAutocomplete extends LitElement {
     this.dispatchEvent(ev);
   }
 
+  async _dropdownResizedHandler() {
+    if (!this.opened) {
+      return;
+    }
+    await this.updateComplete;
+    setTimeout(() => this.dispatchEvent(new CustomEvent('resize')));
+  }
+
   render() {
     const {
       _oldTarget,
@@ -908,13 +955,15 @@ export class AnypointAutocomplete extends LitElement {
       noAnimations,
       styles,
       compatibility,
+      fitPositionTarget,
+      positionTarget,
     } = this;
     const offset = compatibility ? -2 : 0;
     const finalVerticalOffset = verticalOffset  + offset;
     return html`
     <style>${styles}</style>
     <anypoint-dropdown
-      .positionTarget="${_oldTarget}"
+      .positionTarget="${positionTarget || _oldTarget}"
       .verticalAlign="${verticalAlign}"
       .verticalOffset="${finalVerticalOffset}"
       .horizontalAlign="${horizontalAlign}"
@@ -922,10 +971,11 @@ export class AnypointAutocomplete extends LitElement {
       .scrollAction="${scrollAction}"
       .opened="${this[openedValue]}"
       .noAnimations="${noAnimations}"
+      ?fitPositionTarget="${fitPositionTarget}"
       noautofocus
-      nooverlap
       nocancelonoutsideclick
       @overlay-closed="${this._closeHandler}"
+      @iron-resize="${this._dropdownResizedHandler}"
     >
       ${this._listboxTemplate()}
     </anypoint-dropdown>

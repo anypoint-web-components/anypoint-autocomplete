@@ -61,6 +61,13 @@ export declare const autocompleteFocus: unique symbol;
 
 /**
  * Autocomplete for a text input with Material Design and Anypoint themes.
+ * 
+ * @fires query When querying for the data when `loading` is set.
+ * @fires selected When a suggestion is selected
+ * @fires resize When a dropdown resize
+ * @fires loadingchange When the loading (querying) state changed
+ * @fires opened-changed Deprecated. Use openedchange instead.
+ * @fires openedchange When the `opened` state changes.
  */
 export class AnypointAutocomplete extends LitElement {
   createRenderRoot(): AnypointAutocomplete;
@@ -94,6 +101,7 @@ export class AnypointAutocomplete extends LitElement {
   /**
    * True when user query changed and waiting for `source` property update
    */
+  readonly loading: boolean;
   _loading: boolean;
   /**
    * Set this to true if you use async operation in response for query event.
@@ -201,6 +209,31 @@ export class AnypointAutocomplete extends LitElement {
   _previousQuery: string;
 
   readonly _listbox: AnypointListbox;
+
+  /** 
+   * When set it fits the positioning target width.
+   * @attribute
+   */
+  fitPositionTarget?: boolean;
+  /** 
+   * When set to an element it will be used to position the dropdown 
+   * instead of the input element
+   * @attribute
+   */
+  positionTarget?: HTMLElement;
+  /** 
+   * The component sets CSS variables on the dropdown element by default.
+   * When this property is set then the component ignores setting these styles, 
+   * but you have to apply styles to the `anypoint-dropdown` element.
+   * The drop down element is not in the shadow DOM so the application has access to it.
+   * @attribute
+   */
+  ignoreDropdownStyling?: boolean;
+
+  /** 
+   * When set it ignores any events on the input field.
+   */
+  disabled: boolean;
 
   /**
    * A handler for `query` event
