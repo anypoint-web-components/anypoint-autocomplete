@@ -974,8 +974,8 @@ export class AnypointAutocomplete extends LitElement {
       ?fitPositionTarget="${fitPositionTarget}"
       noautofocus
       nocancelonoutsideclick
-      @overlay-closed="${this._closeHandler}"
-      @iron-resize="${this._dropdownResizedHandler}"
+      @closed="${this._closeHandler}"
+      @resize="${this._dropdownResizedHandler}"
     >
       ${this._listboxTemplate()}
     </anypoint-dropdown>
