@@ -213,3 +213,28 @@
 * adding more control over dropdown rendering [70cde00](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/70cde00ead9fb3ba3feeeb2c5d0ef4ad12844bfa) by Pawel
 
 
+<a name="0.2.8"></a>
+## [0.2.8](https://github.com/anypoint-web-components/anypoint-autocomplete/compare/0.2.6...0.2.8) (2020-12-23)
+
+### Build
+
+* bumping version [09c8634](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/09c86347df4cf7a1f46fbf6897cd3150aaf5982d) by Pawel Psztyc
+
+
+### Continuous integration
+
+* updating tests runner [9eddee1](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/9eddee14c9ca466fad304f3aeba47207de19b5ef) by Pawel Psztyc
+
+
+### Update
+
+* replacing iron-resize with resize event [dda3363](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/dda336383c3e6edce06df7d4078981f885560b31) by Pawel Psztyc
+* [ci skip] automated merge master->stage. syncing main branches [963cb61](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/963cb615bb50e98d9e84a3f1a826f412f73ec531) by Ci agent
+* updating vcode settings [cf21bb3](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/cf21bb3ba145d4ba5e5f9ec70b8ae0ae79664a88) by Pawel
+
+
+### Features
+
+* adding more control over dropdown rendering [70cde00](https://github.com/anypoint-web-components/anypoint-autocomplete/commit/70cde00ead9fb3ba3feeeb2c5d0ef4ad12844bfa) by Pawel
+
+
