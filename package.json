@@ -1,7 +1,7 @@
 {
   "name": "@anypoint-web-components/anypoint-autocomplete",
   "description": "Anypoint styled autocomplete for inputs.",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.js",
@@ -25,7 +25,7 @@
     "email": "arc@mulesoft.com"
   },
   "dependencies": {
-    "@anypoint-web-components/anypoint-dropdown": "^1.1.4",
+    "@anypoint-web-components/anypoint-dropdown": "^1.1.5",
     "@anypoint-web-components/anypoint-item": "^1.1.0",
     "@anypoint-web-components/anypoint-listbox": "^1.1.6",
     "@polymer/paper-progress": "^3.0.0",

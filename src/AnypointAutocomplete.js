@@ -973,7 +973,6 @@ export class AnypointAutocomplete extends LitElement {
       .noAnimations="${noAnimations}"
       ?fitPositionTarget="${fitPositionTarget}"
       noautofocus
-      nocancelonoutsideclick
       @closed="${this._closeHandler}"
       @resize="${this._dropdownResizedHandler}"
     >
