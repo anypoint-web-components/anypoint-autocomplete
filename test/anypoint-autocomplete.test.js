@@ -832,12 +832,7 @@ describe('<anypoint-autocomplete>', () => {
       element.source = [{ value: 'zoab' }, { value: 'saab' }, { value: 'ab' }, { value: 'Ab' }];
       element._previousQuery = 'ab';
       element._filterSuggestions();
-      assert.deepEqual(element.suggestions, [
-        { value: 'ab', index: 2 },
-        { value: 'Ab', index: 3 },
-        { value: 'saab', index: 1 },
-        { value: 'zoab', index: 0 },
-      ]);
+      assert.equal(/** @type InternalSuggestion */ (element.suggestions[0]).value, 'ab');
     });
 
     it('sorts the results #2', async () => {
