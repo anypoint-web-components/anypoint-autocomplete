@@ -50,7 +50,6 @@ class ComponentDemo extends ArcDemoPage {
     this.initObservableProperties([
       'demoOutlined',
       'demoCompatibility',
-      'demoNoink',
       'demoUseLoader',
       'demoNoAnimation',
       'complexSuggestions'
@@ -63,7 +62,6 @@ class ComponentDemo extends ArcDemoPage {
     this.demoStates = ['Contained', 'Outlined', 'Anypoint'];
     this.demoUseLoader = false;
     this.darkThemeActive = false;
-    this.demoNoink = false;
     this.demoNoAnimation = false;
     this.complexSuggestions = false;
   }
@@ -104,7 +102,6 @@ class ComponentDemo extends ArcDemoPage {
       darkThemeActive,
       demoOutlined,
       demoCompatibility,
-      demoNoink,
       demoUseLoader,
       demoNoAnimation,
       complexSuggestions,
@@ -123,9 +120,7 @@ class ComponentDemo extends ArcDemoPage {
           @state-chanegd="${this._mainDemoStateHandler}"
           ?dark="${darkThemeActive}"
         >
-
-          <div role="combobox"
-            slot="content"
+          <div slot="content"
             aria-label="Input field with list suggestions">
             <anypoint-input
               ?outlined="${demoOutlined}"
@@ -137,25 +132,19 @@ class ComponentDemo extends ArcDemoPage {
 
             <anypoint-autocomplete
               slot="content"
-              openonfocus
+              openOnFocus
               target="fruitsSuggestions1"
-              ?outlined="${demoOutlined}"
               ?compatibility="${demoCompatibility}"
-              ?noink="${demoNoink}"
               ?noAnimations="${demoNoAnimation}"
               ?loader="${demoUseLoader}"
               .source="${items}"
-              @query="${this._demoQuery}">
+              @query="${this._demoQuery}"
+              verticalOffset="48"
+            >
             </anypoint-autocomplete>
           </div>
 
           <label slot="options" id="mainOptionsLabel">Options</label>
-          <anypoint-checkbox
-            aria-describedby="mainOptionsLabel"
-            slot="options"
-            name="demoNoink"
-            @change="${this._toggleMainOption}"
-            >No ink</anypoint-checkbox>
           <anypoint-checkbox
             aria-describedby="mainOptionsLabel"
             slot="options"

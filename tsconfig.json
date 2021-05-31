@@ -11,14 +11,6 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
-    "plugins": [
-      {
-        "name": "ts-lit-plugin"
-      },
-      {
-        "name": "ts-lit-plugin"
-      }
-    ]
   },
   "include": [
     "**/*.js",
