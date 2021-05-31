@@ -1,8 +1,7 @@
 import { fixture, assert, aTimeout, nextFrame, html } from '@open-wc/testing';
-import * as sinon from 'sinon';
-import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
+import sinon from 'sinon';
 import '../anypoint-autocomplete.js';
-import { openedValue, autocompleteFocus } from '../src/AnypointAutocomplete.js';
+import { openedValue, autocompleteFocus, ignoreNextFocus } from '../src/AnypointAutocomplete.js';
 
 /* eslint-disable no-param-reassign */
 
@@ -224,6 +223,7 @@ describe('<anypoint-autocomplete>', () => {
       const word = 'TEST';
       element.addEventListener('query', function f(e) {
         e.target.removeEventListener('query', f);
+        // @ts-ignore
         e.target.source = [word, `${word  }2`, 'etra73hxis'];
       });
       input.value = 'test';
@@ -311,14 +311,14 @@ describe('<anypoint-autocomplete>', () => {
       input = region.querySelector('input');
     });
 
-    it('render two line item', async () => {
+    it('renders two line item', async () => {
       input.value = '';
       notifyInput(input);
       await nextFrame();
       const item = element.querySelector('anypoint-item');
       const body = item.querySelector('anypoint-item-body');
       assert.isTrue(body.hasAttribute('twoLine'));
-      const desc = body.querySelector('[secondary]')
+      const desc = body.querySelector('[data-secondary]')
       assert.equal(desc.textContent.trim(), 'd1');
     });
 
@@ -331,7 +331,7 @@ describe('<anypoint-autocomplete>', () => {
       input.value = 'appl';
       notifyInput(input);
       await nextFrame();
-      const label = element._listbox.querySelector('anypoint-item [secondary] i');
+      const label = element._listbox.querySelector('anypoint-item [data-secondary] i');
       assert.ok(label, 'description exists');
     });
   });
@@ -532,7 +532,7 @@ describe('<anypoint-autocomplete>', () => {
       input.value = 'a';
       notifyInput(input);
       await nextFrame();
-      const node = element.querySelector('paper-progress');
+      const node = element.querySelector('progress');
       assert.ok(node);
     });
 
@@ -548,7 +548,7 @@ describe('<anypoint-autocomplete>', () => {
       await nextFrame();
       element.source = ['apple'];
       await nextFrame();
-      const node = element.querySelector('paper-progress');
+      const node = element.querySelector('progress');
       assert.notOk(node);
     });
 
@@ -558,7 +558,7 @@ describe('<anypoint-autocomplete>', () => {
       await nextFrame();
       element.source = [];
       await nextFrame();
-      const node = element.querySelector('paper-progress');
+      const node = element.querySelector('progress');
       assert.notOk(node);
     });
   });
@@ -900,20 +900,19 @@ describe('<anypoint-autocomplete>', () => {
       assert.equal(element[autocompleteFocus], 1);
     });
 
-    it('Does nothing when __ignoreNextFocus is set', () => {
-      element.__ignoreNextFocus = 1;
+    it('Does nothing when [ignoreNextFocus] is set', async () => {
+      element[ignoreNextFocus] = true;
       element._targetFocusHandler();
-      assert.equal(element.__ignoreNextFocus, 1);
+      await aTimeout(0);
+      assert.isTrue(element[ignoreNextFocus]);
     });
 
-    it('Sets __autocompleteFocus', () => {
-      element._valueChanged = () => {};
+    it('Sets [autocompleteFocus]', () => {
       element._targetFocusHandler();
       assert.isTrue(element[autocompleteFocus]);
     });
 
-    it('Re-sets __autocompleteFocus', async () => {
-      element._valueChanged = () => {};
+    it('Re-sets [autocompleteFocus]', async () => {
       element._targetFocusHandler();
       await aTimeout(1);
       assert.isFalse(element[autocompleteFocus]);
@@ -1052,25 +1051,53 @@ describe('<anypoint-autocomplete>', () => {
 
     it('calls _onDownKey() when ArrowDown', () => {
       const spy = sinon.spy(element, '_onDownKey');
-      MockInteractions.keyDownOn(input, 40, [], 'ArrowDown');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        composed: true,
+        bubbles: true,
+        cancelable: true,
+        code: 'ArrowDown',
+        key: 'ArrowDown',
+        keyCode: 40,
+      }));
       assert.isTrue(spy.called);
     });
 
     it('calls _onEnterKey() when Enter', () => {
       const spy = sinon.spy(element, '_onEnterKey');
-      MockInteractions.keyDownOn(input, 13, [], 'Enter');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        composed: true,
+        bubbles: true,
+        cancelable: true,
+        code: 'Enter',
+        key: 'Enter',
+        keyCode: 13,
+      }));
       assert.isTrue(spy.called);
     });
 
     it('calls _onTabDown() when Enter', () => {
       const spy = sinon.spy(element, '_onTabDown');
-      MockInteractions.keyDownOn(input, 9, [], 'Tab');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        composed: true,
+        bubbles: true,
+        cancelable: true,
+        code: 'Tab',
+        key: 'Tab',
+        keyCode: 9,
+      }));
       assert.isTrue(spy.called);
     });
 
     it('calls _onEscKey() when Escape', () => {
       const spy = sinon.spy(element, '_onEscKey');
-      MockInteractions.keyDownOn(input, 27, [], 'Escape');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        composed: true,
+        bubbles: true,
+        cancelable: true,
+        code: 'Escape',
+        key: 'Escape',
+        keyCode: 27,
+      }));
       assert.isTrue(spy.called);
     });
 
@@ -1078,7 +1105,14 @@ describe('<anypoint-autocomplete>', () => {
       const item = element._listbox.items[3];
       element._listbox._focusedItem = item;
       const spy = sinon.spy(element, '_onUpKey');
-      MockInteractions.keyDownOn(input, 38, [], 'ArrowUp');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        composed: true,
+        bubbles: true,
+        cancelable: true,
+        code: 'ArrowUp',
+        key: 'ArrowUp',
+        keyCode: 38,
+      }));
       assert.isTrue(spy.called);
     });
   });
@@ -1193,7 +1227,14 @@ describe('<anypoint-autocomplete>', () => {
     it('ignores key events on the target', () => {
       element.openOnFocus = true;
       const spy = sinon.spy(element, '_onDownKey');
-      MockInteractions.keyDownOn(input, 40, [], 'ArrowDown');
+      input.dispatchEvent(new KeyboardEvent('keydown', {
+        composed: true,
+        bubbles: true,
+        cancelable: true,
+        code: 'ArrowDown',
+        key: 'ArrowDown',
+        keyCode: 40,
+      }));
       assert.isFalse(spy.called);
     });
 

@@ -54,10 +54,10 @@ export declare const processSource: unique symbol;
 export declare const normalizeSource: unique symbol;
 export declare const itemTemplate: unique symbol;
 export declare const readLabelValue: unique symbol;
-export declare const rippleTemplate: unique symbol;
 export declare const openedValue: unique symbol;
 export declare const openedValuePrivate: unique symbol;
 export declare const autocompleteFocus: unique symbol;
+export declare const ignoreNextFocus: unique symbol;
 
 /**
  * Autocomplete for a text input with Material Design and Anypoint themes.
@@ -93,7 +93,7 @@ export class AnypointAutocomplete extends LitElement {
   /**
    * List of suggestion that are rendered.
    */
-  readonly suggestions: string[]|InternalSuggestion[];
+  get suggestions(): string[]|InternalSuggestion[];
   /**
    * List of suggestion that are rendered.
    */
@@ -101,7 +101,7 @@ export class AnypointAutocomplete extends LitElement {
   /**
    * True when user query changed and waiting for `source` property update
    */
-  readonly loading: boolean;
+  get loading(): boolean;
   _loading: boolean;
   /**
    * Set this to true if you use async operation in response for query event.
@@ -116,7 +116,7 @@ export class AnypointAutocomplete extends LitElement {
    */
   openOnFocus: boolean;
 
-  readonly opened: boolean;
+  get opened(): boolean;
   /**
    * The orientation against which to align the element vertically
    * relative to the text input.
@@ -177,12 +177,6 @@ export class AnypointAutocomplete extends LitElement {
    */
   noAnimations: boolean;
   /**
-   * Removes ripple effect from list items.
-   * This effect is always disabled when `compatibility` is set.
-   * @attribute
-   */
-  noink: boolean;
-  /**
    * Enables compatibility with Anypoint components.
    * @attribute
    */
@@ -208,7 +202,9 @@ export class AnypointAutocomplete extends LitElement {
 
   _previousQuery: string;
 
-  readonly _listbox: AnypointListbox;
+  get _listbox(): AnypointListbox;
+
+  [ignoreNextFocus]?: boolean;
 
   /** 
    * When set it fits the positioning target width.
@@ -360,7 +356,7 @@ export class AnypointAutocomplete extends LitElement {
    *
    * @param value Selected value.
    */
-  _inform(value: string[]|Suggestion[]): void;
+  _inform(value: string|Suggestion[]): void;
 
   render(): TemplateResult;
 

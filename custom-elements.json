@@ -52,11 +52,6 @@
           "type": "boolean"
         },
         {
-          "name": "noink",
-          "description": "Removes ripple effect from list items.\nThis effect is always disabled when `compatibility` is set.",
-          "type": "boolean"
-        },
-        {
           "name": "compatibility",
           "description": "Enables compatibility with Anypoint components.",
           "type": "boolean"
@@ -70,6 +65,21 @@
           "name": "noTargetValueUpdate",
           "description": "When set the element won't update the `value` property on the\ntarget when a selection is made.",
           "type": "boolean"
+        },
+        {
+          "name": "fitPositionTarget",
+          "description": "When set it fits the positioning target width.",
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "positionTarget",
+          "description": "When set to an element it will be used to position the dropdown \ninstead of the input element",
+          "type": "HTMLElement | undefined"
+        },
+        {
+          "name": "ignoreDropdownStyling",
+          "description": "The component sets CSS variables on the dropdown element by default.\nWhen this property is set then the component ignores setting these styles, \nbut you have to apply styles to the `anypoint-dropdown` element.\nThe drop down element is not in the shadow DOM so the application has access to it.",
+          "type": "boolean | undefined"
         }
       ],
       "properties": [
@@ -88,6 +98,11 @@
           "name": "suggestions",
           "description": "List of suggestion that are rendered.",
           "type": "string[] | InternalSuggestion[]"
+        },
+        {
+          "name": "loading",
+          "description": "True when user query changed and waiting for `source` property update",
+          "type": "boolean"
         },
         {
           "name": "loader",
@@ -142,12 +157,6 @@
           "type": "boolean"
         },
         {
-          "name": "noink",
-          "attribute": "noink",
-          "description": "Removes ripple effect from list items.\nThis effect is always disabled when `compatibility` is set.",
-          "type": "boolean"
-        },
-        {
           "name": "compatibility",
           "attribute": "compatibility",
           "description": "Enables compatibility with Anypoint components.",
@@ -175,6 +184,29 @@
           "type": "boolean"
         },
         {
+          "name": "fitPositionTarget",
+          "attribute": "fitPositionTarget",
+          "description": "When set it fits the positioning target width.",
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "positionTarget",
+          "attribute": "positionTarget",
+          "description": "When set to an element it will be used to position the dropdown \ninstead of the input element",
+          "type": "HTMLElement | undefined"
+        },
+        {
+          "name": "ignoreDropdownStyling",
+          "attribute": "ignoreDropdownStyling",
+          "description": "The component sets CSS variables on the dropdown element by default.\nWhen this property is set then the component ignores setting these styles, \nbut you have to apply styles to the `anypoint-dropdown` element.\nThe drop down element is not in the shadow DOM so the application has access to it.",
+          "type": "boolean | undefined"
+        },
+        {
+          "name": "disabled",
+          "description": "When set it ignores any events on the input field.",
+          "type": "boolean"
+        },
+        {
           "name": "onquery",
           "description": "A handler for `query` event",
           "type": "EventListener | null"
@@ -183,6 +215,32 @@
           "name": "onselected",
           "description": "A handler for `selected` event",
           "type": "EventListener | null"
+        }
+      ],
+      "events": [
+        {
+          "name": "query",
+          "description": "When querying for the data when `loading` is set."
+        },
+        {
+          "name": "selected",
+          "description": "When a suggestion is selected"
+        },
+        {
+          "name": "resize",
+          "description": "When a dropdown resize"
+        },
+        {
+          "name": "loadingchange",
+          "description": "When the loading (querying) state changed"
+        },
+        {
+          "name": "opened-changed",
+          "description": "Deprecated. Use openedchange instead."
+        },
+        {
+          "name": "openedchange",
+          "description": "When the `opened` state changes."
         }
       ]
     }

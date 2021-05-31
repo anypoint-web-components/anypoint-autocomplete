@@ -1,7 +1,3 @@
-[![Build Status](https://travis-ci.com/anypoint-web-components/anypoint-autocomplete.svg)](https://travis-ci.com/anypoint-web-components/anypoint-autocomplete)
-
-[![Published on NPM](https://img.shields.io/npm/v/@anypoint-web-components/anypoint-autocomplete.svg)](https://www.npmjs.com/package/@anypoint-web-components/anypoint-autocomplete)
-
 # anypoint-autocomplete
 
 This component is based on Material Design lists.
@@ -10,13 +6,17 @@ Anypoint web components are set of components that allows to build Anypoint enab
 
 The element renders accessible list of suggestions for an input field.
 
+[![Build Status](https://travis-ci.com/anypoint-web-components/anypoint-autocomplete.svg)](https://travis-ci.com/anypoint-web-components/anypoint-autocomplete)
+
+[![tests](https://github.com/anypoint-web-components/anypoint-autocomplete/actions/workflows/deployment.yml/badge.svg)](https://github.com/anypoint-web-components/anypoint-autocomplete/actions/workflows/deployment.yml)
+
 ## Usage
 
 ### Installation
-```
+
+```sh
 npm install --save @anypoint-web-components/anypoint-autocomplete
 ```
-
 
 ### In a HTML document
 
@@ -175,6 +175,7 @@ npm start
 ```
 
 ### Running the tests
+
 ```sh
 npm test
 ```

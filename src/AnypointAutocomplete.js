@@ -18,8 +18,6 @@ import '@anypoint-web-components/anypoint-dropdown/anypoint-dropdown.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item.js';
 import '@anypoint-web-components/anypoint-item/anypoint-item-body.js';
 import '@anypoint-web-components/anypoint-listbox/anypoint-listbox.js';
-import '@polymer/paper-ripple/paper-ripple.js';
-import '@polymer/paper-progress/paper-progress.js';
 
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
@@ -45,16 +43,11 @@ export const processSource = Symbol('processSource');
 export const normalizeSource = Symbol('normalizeSource');
 export const itemTemplate = Symbol('itemTemplate');
 export const readLabelValue = Symbol('readLabelValue');
-export const rippleTemplate = Symbol('rippleTemplate');
 export const openedValue = Symbol('openedValue');
 export const openedValuePrivate = Symbol('openedValuePrivate');
 export const autocompleteFocus = Symbol('autocompleteFocus');
+export const ignoreNextFocus = Symbol('ignoreNextFocus');
 
-/**
- * # `<paper-autocomplete>`
- *
- * @element anypoint-autocomplete
- */
 export class AnypointAutocomplete extends LitElement {
   get styles() {
     return css`.highlight {
@@ -165,12 +158,6 @@ export class AnypointAutocomplete extends LitElement {
        * @attribute
        */
       noAnimations: { type: Boolean, reflect: true },
-      /**
-       * Removes ripple effect from list items.
-       * This effect is always disabled when `compatibility` is set.
-       * @attribute
-       */
-      noink: { type: Boolean, reflect: true },
       /**
        * Enables compatibility with Anypoint components.
        * @attribute
@@ -425,7 +412,6 @@ export class AnypointAutocomplete extends LitElement {
     this.verticalOffset = 2;
     this.noTargetControls = false;
     this.noAnimations = false;
-    this.noink = false;
     this.noTargetValueUpdate = false;
     this.fitPositionTarget = false;
     this.positionTarget = undefined;
@@ -613,7 +599,7 @@ export class AnypointAutocomplete extends LitElement {
    * Renders suggestions on target input focus if `openOnFocus` is set.
    */
   _targetFocusHandler() {
-    if (!this.openOnFocus || this.opened || this[autocompleteFocus] || this.__ignoreNextFocus || this.disabled) {
+    if (!this.openOnFocus || this.opened || this[autocompleteFocus] || this[ignoreNextFocus] || this.disabled) {
       return;
     }
     this[autocompleteFocus] = true;
@@ -757,6 +743,7 @@ export class AnypointAutocomplete extends LitElement {
     if (node) {
       // @ts-ignore
       node.notifyResize();
+      node.refit();
     }
   }
 
@@ -807,11 +794,11 @@ export class AnypointAutocomplete extends LitElement {
   }
 
   _refocusTarget() {
-    this.__ignoreNextFocus = true;
+    this[ignoreNextFocus] = true;
     this.target.blur();
     this.target.focus();
     setTimeout(() => {
-      this.__ignoreNextFocus = false;
+      this[ignoreNextFocus] = false;
     });
   }
 
@@ -910,12 +897,12 @@ export class AnypointAutocomplete extends LitElement {
   _onTabDown() {
     if (this[openedValue]) {
       this._listbox.tabIndex = -1;
-      this.__ignoreNextFocus = true;
+      this[ignoreNextFocus] = true;
       this.__ignoreCloseRefocus = true;
       this[openedValue] = false;
       setTimeout(() => {
         this._listbox.tabIndex = 0;
-        this.__ignoreNextFocus = false;
+        this[ignoreNextFocus] = false;
         this.__ignoreCloseRefocus = false;
       }, 300);
     }
@@ -1009,7 +996,7 @@ export class AnypointAutocomplete extends LitElement {
     if (!_showLoader) {
       return '';
     }
-    return html`<paper-progress style="width: 100%" indeterminate></paper-progress>`;
+    return html`<progress style="width: 100%"></progress>`;
   }
 
   /**
@@ -1038,28 +1025,19 @@ export class AnypointAutocomplete extends LitElement {
   [itemTemplate](item) {
     const label = this[readLabelValue](item);
     const { description } = item;
-    const { compatibility, noink } = this;
+    const { compatibility } = this;
     if (description) {
       return html`
       <anypoint-item ?compatibility="${compatibility}">
         <anypoint-item-body ?compatibility="${compatibility}" twoline>
           <div>${label}</div>
-          <div secondary>${description}</div>
-          ${this[rippleTemplate](compatibility, noink)}
+          <div data-secondary>${description}</div>
         </anypoint-item-body>
       </anypoint-item>`;
     }
     return html`<anypoint-item ?compatibility="${compatibility}">
       <div>${label}</div>
-      ${this[rippleTemplate](compatibility, noink)}
     </anypoint-item>`;
-  }
-
-  [rippleTemplate](compatibility, noink) {
-    if (compatibility) {
-      return '';
-    }
-    return html`<paper-ripple ?noink="${noink}"></paper-ripple>`;
   }
 }
 /**
