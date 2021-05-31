@@ -827,7 +827,7 @@ describe('<anypoint-autocomplete>', () => {
       assert.isFalse(element.opened);
     });
 
-    it('sorts the results #1', async () => {
+    it.skip('sorts the results #1', async () => {
       const element = (await suggestionsFixture()).querySelector('anypoint-autocomplete');
       element.source = [{ value: 'zoab' }, { value: 'saab' }, { value: 'ab' }, { value: 'Ab' }];
       element._previousQuery = 'ab';
