@@ -1444,4 +1444,39 @@ describe('<anypoint-autocomplete>', () => {
       assert.equal(result, 'listbox');
     });
   });
+
+  describe('Suggestion rendering', () => {
+    let element = /** @type AnypointAutocomplete */ (null);
+    let input = /** @type HTMLInputElement */ (null);
+
+    beforeEach(async () => {
+      const region = await suggestionsFixture();
+      element = region.querySelector('anypoint-autocomplete');
+      element.openOnFocus = true;
+      input = region.querySelector('input');
+      await nextFrame();
+    });
+
+    it('should open suggestions when input is focused', async () => {
+      input.focus();
+      await nextFrame();
+      assert.isTrue(element.opened);
+    });
+
+    it('should close suggestions when click happens outside input', async () => {
+      input.focus();
+      await nextFrame();
+      document.body.click();
+      await nextFrame();
+      assert.isFalse(element.opened);
+    });
+
+    it('should not close suggestions when click happens inside input', async () => {
+      input.focus();
+      await nextFrame();
+      input.click();
+      await nextFrame();
+      assert.isTrue(element.opened);
+    });
+  });
 });
