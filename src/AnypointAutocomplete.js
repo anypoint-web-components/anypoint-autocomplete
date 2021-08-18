@@ -399,6 +399,7 @@ export class AnypointAutocomplete extends LitElement {
     this._targetInputHandler = this._targetInputHandler.bind(this);
     this._targetFocusHandler = this._targetFocusHandler.bind(this);
     this._targetKeydown = this._targetKeydown.bind(this);
+    this._onCaptureClick = this._onCaptureClick.bind(this)
 
     this._suggestions = [];
     this._loading = false;
@@ -427,6 +428,10 @@ export class AnypointAutocomplete extends LitElement {
     ensureNodeId(this);
     this.style.position = 'absolute';
     this.isAttached = true;
+    // This is done on the document rather than the `target` property because the click may
+    // be done on the target's label element, or something similar, and we still need to capture
+    // the event
+    document.addEventListener('click', this._onCaptureClick)
   }
 
   disconnectedCallback() {
@@ -435,6 +440,23 @@ export class AnypointAutocomplete extends LitElement {
       super.disconnectedCallback();
     }
     this.isAttached = false;
+    document.removeEventListener('click', this._onCaptureClick)
+  }
+
+  _onCaptureClick(e) {
+    let shouldClose = true
+    const cp = e.composedPath && e.composedPath();
+    // @ts-ignore
+    const path = /** @type {!Array<!EventTarget>} */ cp || e.path;
+    for (const pathItem of path) {
+      if (pathItem === this.target) {
+        shouldClose = false
+        break
+      }
+    }
+    if (shouldClose) {
+      this._closeHandler()
+    }
   }
 
   firstUpdated() {
@@ -962,6 +984,7 @@ export class AnypointAutocomplete extends LitElement {
       noautofocus
       @closed="${this._closeHandler}"
       @resize="${this._dropdownResizedHandler}"
+      noCancelOnOutsideClick
     >
       ${this._listboxTemplate()}
     </anypoint-dropdown>
